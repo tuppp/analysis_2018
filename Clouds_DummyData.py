@@ -43,6 +43,7 @@ acc, se2  = fle.getConnectionAccuweathercom()
 openW, se3 =fle.getConnectionOpenWeatherMaporg()
 wetter_com , se4 = fle.getConnectionWettercom()
 wetter_de, se5 = fle.getConnectionWetterde()
+wetter_dienst, se6 = fle.getConnectionWetterdienstde()
 
 #shiny = fle.getPostcode(11111, dwd, se, query = "")
 
@@ -50,6 +51,14 @@ wetter_de, se5 = fle.getConnectionWetterde()
 
 #ganze_tabelle = se1.query(dwd).filter(dwd.c.postcode = acc.c.postcode)
 
+
+#table_postcode_acc = se1.query(dwd, acc).filter(dwd.c.station_name ==  acc.c.city).filter(dwd.c.measure_date == acc.c.measure_date)
+#table_postcode_opmap = se3.query(dwd, openW).filter(dwd.c.postcode ==  openW.c.postcode)
+#acc_postcode = se2.query(acc).filter(acc.c.postcode != -1)
+#print(acc_postcode)
+#print('acc_post:', fle.getResult(table_postcode_opmap,se3))
+#print('hello')
+#print('join:', fle.getResult(table_postcode,se1))
 #Test
 """
 DWD - Columns
@@ -76,7 +85,27 @@ DWD - Columns
 """
 
 dwd_info = fle.getResult(se1.query(dwd),se1)
-print('dwd_clouds:', fle.getResult(se1.query(dwd),se1))
+#print('dwd_clouds:', fle.getResult(se1.query(dwd),se1))
+#
+
+#resulti =  fle.getResult(se1.query(dwd),se1)
+#print('Typ:', type(resulti.type))
+# DWD ab 20180501
+a = se1.execute('select * from dwd where measure_date > 20180501')
+print('a:',fle.getResult(a,se1))
+print(len(fle.getResult(a,se1)))
+
+
+# Wetterdienst ab 20180501
+b = se6.execute('select * from wetterdienstde where measure_date > 20180501')
+print('b:',fle.getResult(b,se6))
+print(len(fle.getResult(b,se6)))
+
+#join both
+
+c = se6.execute('select * from wetterdienstde, dwd where dwd.measure_date > 20180501 and wetterdienstde.measure_date > 20180501 and wetterdienstde.postcode = dwd.postcode')
+print('c:',fle.getResult(c,se6))
+print(len(fle.getResult(c,se6)))
 
 def cloud_convert_dwd(dwd_cloud):
     dwd_cloud_list = dwd_info.copy()
@@ -108,11 +137,11 @@ Accuweathercom - Columns
 16 clouds                       | varchar(50) | YES  |     | NULL    |
 """
 
-weather_app_info = fle.getResult(se2.query(acc),se2)
-print('dwd_clouds:', fle.getResult(se1.query(dwd),se1))
+weather_app_wetterdienstde = fle.getResult(se2.query(wetter_dienst),se6)
+#print('dwd_clouds:', fle.getResult(se1.query(dwd),se1))
 
 def cloud_convert_weather_app(weather_cloud):
-    weather_cloud_list = weather_app_info.copy()
+    weather_cloud_list = weather_app_wetterdienstde.copy()
 
     intervall_length = 100/9
     intervall_ends = 100/9/2
@@ -143,32 +172,22 @@ def cloud_convert_weather_app(weather_cloud):
 
     return weather_cloud_list
 
+def cloud_diff(start_date):
+    query1 = se1.execute('select * from (select * from dwd where measure_date > 20180601) as dwd1, (select * from wetterdienstde where measure_date > 20180601) as wetterdienstde1 where dwd1.measure_date = wetterdienstde1.measure_date and dwd1.postcode = wetterdienstde1.postcode')
+    diff_list = fle.getResult(query1,se6)
+    #Null bereinigen
+    #join an date
+    dwd_cloud_index = 1
+    wetter_app_cloud_index = 2
 
-def convert_wetterdienst(x):
-    wetter_cloud_list = []
-    for cloud_wetter in x:
-            if cloud_wetter <= 1:
-                wetter_cloud_list.append(1)
-            elif cloud_wetter > 1 and cloud_wetter <= 2:
-                wetter_cloud_list.append(2)
-            elif cloud_wetter > 2 and cloud_wetter <= 3:
-                wetter_cloud_list.append(3)
-            elif cloud_wetter > 3 and cloud_wetter <= 4:
-                wetter_cloud_list.append(4)
-            elif cloud_wetter > 4 and cloud_wetter <= 5:
-                wetter_cloud_list.append(5)
-            elif cloud_wetter > 5 and cloud_wetter <= 6:
-                wetter_cloud_list.append(6)
-            elif cloud_wetter > 6 and cloud_wetter <= 7:
-                wetter_cloud_list.append(7)
-            else:
-                wetter_cloud_list.append(8)
-    return wetter_cloud_list
+    for object in diff_list:
+        cloud_diffi = object[dwd_cloud_index]- object[wetter_app_cloud_index]
+        diff_list.append(cloud_diffi)
+    
+    return diff_list
 
-listi = []
-#listi.append('a')
-print(listi)
 
+"""
 temperature_diff = []
 def Temp_difference(x,y):
 
@@ -185,26 +204,8 @@ def mean_square(x,y):
     x_ms = np.sqrt(x_ms / len(x))
 
     return x_ms
+"""
 
-
-
-
-mock_data_wetter = [['sonnig', 'heiter', 'wolkig', 'fast_bedeckt'],
-                ['wolkig','fast_bedeckt','sonnig','heiter']]
-
-
-Dahlem_dwd = np.array([6.2,5.6,6.1,6.1,6.3,5.3,5.7,7.2,8,3.4])
-Dahlem_waether = np.array([29,21,49,46,47,16,54,57,54,88])
-
-
-
-#cloudy_list = cloudy_convert_accuwaehter (Dahlem_dwd)
-#print(cloudy_list)
-#cloudy_list = [[0.25, 0.375, 0.625, 0.875], [0.625, 0.875, 0.25, 0.375]]
-
-
-mock_data_dbd = [[6/8, 1/8, 7/8, 2/8],
-                 [6/8, 1/8, 7/8, 3/8]]
 
 #def spearman(mock_data,cloudlist):
  #   korrel = []
@@ -221,8 +222,8 @@ mock_data_dbd = [[6/8, 1/8, 7/8, 2/8],
 #print(spearman(mock_data_dbd,cloudy_list))
 
 
-def rms(predictions, targets):
-    return np.sqrt(((predictions - targets) ** 2).mean())
+#def rms(predictions, targets):
+#    return np.sqrt(((predictions - targets) ** 2).mean())
 ###########################
 
 
