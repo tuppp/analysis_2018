@@ -29,28 +29,30 @@ def get_data(city):
 	return np.vstack(result)
 
 # plot a calendar-style heatmap of plot_data
-def plot_heatmap(plot_data):
+def plot_heatmap(plot_data, city_A, city_B):
 	matplotlib.rcParams.update({'font.size': 8})
 	# plot data from multiple years
 	plt.figure()
 	fig2, ax2 = calmap.calendarplot(plot_data, linecolor = 'white')		# must set linecolor, due to calmaps's use of depreacted matplotlib methods
-	plt.title("Daily sunshine difference between Munich and Berlin")
+	plt.title("Daily sunshine difference between "+city_A+" and "+city_B)
 	plt.show()
 
 # Generate a heatmap of the difference in measured sunshine between two cities
-def main():	
-	stack = get_data("Berlin")
-	stack_2 = get_data("M")
+def main(city_A = "Berlin", city_B = "M"):	
+	stack_A = get_data(city_A)
+	stack_B = get_data(city_B)
 
 	# find start date of stack (remove trailing '.0' and convert to date format)
-	start_date = str(int(stack[0,0]))
+	start_date = str(int(stack_A[0,0]))
 	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
 
-	data_range = pd.date_range(start_date, periods=stack.shape[0], freq='D')
-	plot_data = pd.Series(stack_2[:550,1]-stack[:,1], index=data_range)
+	# compute date range from the start_date and length of the time series
+	data_range = pd.date_range(start_date, periods=stack_A.shape[0], freq='D')
+	# compute difference of the two time series
+	plot_data = pd.Series(stack_B[:550,1]-stack_A[:,1], index=data_range)
 
 	print(plot_data)
-	plot_heatmap(plot_data)
+	plot_heatmap(plot_data, city_A, city_B)
 
 if __name__ == "__main__":
     main()
