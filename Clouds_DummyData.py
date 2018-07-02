@@ -91,7 +91,7 @@ dwd_info = fle.getResult(se1.query(dwd),se1)
 #resulti =  fle.getResult(se1.query(dwd),se1)
 #print('Typ:', type(resulti.type))
 # DWD ab 20180501
-a = se1.execute('select * from dwd where measure_date > 20180501')
+a = se1.execute('select dwd.pstcode from dwd where measure_date > 20180501')
 print('a:',fle.getResult(a,se1))
 print(len(fle.getResult(a,se1)))
 
