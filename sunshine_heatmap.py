@@ -12,16 +12,12 @@ import sys
 sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
 import FunctionLibraryExtended as fle
 
-'''
-Generate a heatmap of the deviation between measured and predicted sunshine
-'''
+# Generate a heatmap of the deviation between measured and predicted sunshine
 
-def main():
-
-	# get real data
-
+def main():	
 	#try:
 	Base = declarative_base()
+	# ask user to enter username and password
 	engine = create_engine('mysql+pymysql://dwdtestuser:asdassaj14123@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
 	Base.metadata.create_all(engine)
 	Session = sqla.orm.sessionmaker()
@@ -33,48 +29,32 @@ def main():
     # Get Table
 	table = metadata.tables['dwd']
 
-	result = engine.execute("SELECT station_name, measure_date, sun_hours FROM dwd WHERE station_name LIKE 'Berlin%%'")
+	# NOT CONTAINS(sun_hours, None)
+	result = engine.execute("SELECT measure_date, sun_hours FROM dwd WHERE (station_name LIKE 'Berlin%%') AND (sun_hours NOT LIKE 'None') GROUP BY measure_date")
+	#result = engine.execute("SELECT station_name, measure_date, sun_hours FROM dwd WHERE station_name LIKE 'Berlin%%' AND NOT CONTAINS(sun_hours, None)")
+	stack = np.vstack(result)
 
-	for row in result:
-		print(row)
+	# get data for second city
+	result = engine.execute("SELECT measure_date, sun_hours FROM dwd WHERE (station_name LIKE 'M%%') AND (sun_hours NOT LIKE 'None') GROUP BY measure_date")
+	stack_2 = np.vstack(result)
 
-	print(type(result))
+	# find start date of stack (remove trailing '.0' and convert to date format)
+	start_date = str(int(stack[0,0]))
+	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
 
-	### generate test data
-	num_days = 700
-	start_date = '1/1/2014'
+	data_range = pd.date_range(start_date, periods=stack.shape[0], freq='D')
+	plot_data = pd.Series(stack_2[:550,1]-stack[:,1], index=data_range)
 
-	np.random.seed(sum(map(ord, 'calmap')))
-
-	mu_meas, sig_meas = 5, 0.3
-	mu_pred, sig_pred = 1, 0.1
-	meas = np.random.normal(mu_meas, sig_meas, num_days)
-	predicted = meas + np.random.normal(mu_pred, sig_pred, num_days)
-	deviation = meas - predicted
-	###
-
-	# test
-	data_range = (pd.date_range(start_date, periods=num_days, freq='D'))
-	plot_data = pd.Series(meas, index=data_range) - pd.Series(predicted, index=data_range)
+	print(plot_data)
 
 	matplotlib.rcParams.update({'font.size': 8})
-
-	# plot data from a single year
-	plt.figure()
-	ax = calmap.yearplot(plot_data, year=2014, linecolor = 'white')		# must set linecolor, due to calmaps's use of depreacted matplotlib methods
-	plt.title("Sunshine prediction deviation")
-	ax.plot()
-	plt.show()
 
 	# plot data from multiple years
 	plt.figure()
 	fig2, ax2 = calmap.calendarplot(plot_data, linecolor = 'white')		# must set linecolor, due to calmaps's use of depreacted matplotlib methods
-	plt.title("Sunshine prediction deviation")
-	#fig2.title("Sunshine prediction deviation")
-	#ax2.plot()
-	#fig2.add_axes(ax2)
-	#fig2.show()
+	plt.title("Daily sunshine difference between Munich and Berlin")
 	plt.show()
+
 
 if __name__ == "__main__":
     main()
