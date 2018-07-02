@@ -8,12 +8,9 @@ import sqlalchemy as sqla
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 
-import sys
-sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
 import FunctionLibraryExtended as fle
 
-# Generate a heatmap of the deviation between measured and predicted sunshine
-
+# Generate a heatmap of the difference in measured sunshine between two cities
 def main():	
 	#try:
 	Base = declarative_base()
