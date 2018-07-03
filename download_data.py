@@ -4,6 +4,7 @@ import sys
 
 sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
 
+
 import FunctionLibraryExtended as fl
 
 dwd, se = fl.getConnectionDWD()
@@ -43,27 +44,36 @@ print("query: ")
 
 #query9 = se.execute("SELECT dwd.max_temp, openweathermaporg.max_temp WHERE dwd.postcode == openweathermaporg.postcode AND dwd.measure_date == 20180604 AND openweathermaporg.measure_date_prediction == 20180604")
 #query1 = se.execute("SELECT * FROM dwd WHERE dwd.measure_date = 20180604 AND dwd.max_temp IS NOT NULL AND (postcode = 15837 OR postcode= 55250 OR postcode= 60323 OR postcode= 26197 )")
-predictiondatesquery = se.execute("SELECT DISTINCT measure_date_prediction FROM openweathermaporg WHERE measure_date_prediction > 20180604")
-postcodequery = se.execute("SELECT DISTINCT dwd.postcode FROM dwd WHERE EXISTS (SELECT DISTINCT postcode FROM openweathermaporg) ")
+#predictiondatesquery = se.execute("SELECT DISTINCT measure_date_prediction FROM openweathermaporg WHERE measure_date_prediction > 20180604")
+#postcodequery = se.execute("SELECT DISTINCT dwd.postcode FROM dwd WHERE EXISTS (SELECT DISTINCT postcode FROM openweathermaporg) ")
 
-one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
-dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
+#one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
+#dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
 
-dwd_data_query = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522 AND measure_date < 20180604")
+dwd_data_query = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522")
 #difference between the date where prediction was created and the date which the prediction is for
 diff = 1
-accuweather_data_query = se.execute("SELECT measure_date_prediction, max_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522 AND measure_date_prediction < 20180604 AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query = se.execute("SELECT measure_date_prediction, min_temp AS max_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 # AND d.measure_date = op.measure_date_prediction
 
 #result = fl.getResult(one_day_pred_query, se)
 #result = fl.getResult(dwd_dates_query, se)
 #result = fl.getResult(se.execute("SELECT DISTINCT measure_date FROM dwd"), se)
 #result = fl.getResult(postcodequery, se)
-
+print("start download")
 dwd_data = fl.getResult(dwd_data_query, se)
-pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+print("download done")
+print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df = pd.DataFrame(dwd_data, columns=("date", "max_temp", "postcode"))
+print(dwd_df)
+dwd_df.to_csv("dwd_data.csv", columns=("date", "max_temp", "postcode"), header=True)
 accuweather_data = fl.getResult(accuweather_data_query, se)
-pd.DataFrame(accuweather_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/acc_data.csv")
+acc_df = pd.DataFrame(accuweather_data)
+acc_df.columns = ("date", "max_temp", "city")
+acc_df.to_csv("acc_data.csv", columns=("date", "max_temp", "city"))
+
+
 
 #postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 
