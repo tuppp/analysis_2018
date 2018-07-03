@@ -30,6 +30,8 @@ Queries:
 1. Min_Temp
 2. Max_Temp
 3. Clouds
+4. Wind_Speed
+5. Precipitation
 
 Functions:
 1. Difference
@@ -43,49 +45,52 @@ app_property_index = 3
 def min_temp_select(weatherapp):
 
     if weatherapp == 'accuweathercom':
-        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, accuweathercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, accuweathercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         min_temp_compare = fle.getResult(se2, accuweather_compare_query)
     elif weatherapp == 'openweathermaporg':
         openweather_compare_query = se3.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, openweathermaporg as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, openweathermaporg as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         min_temp_compare = fle.getResult(se3, openweather_compare_query)
     elif weatherapp == 'wettercom':
         wettercom_compare_query = se4.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wettercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wettercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         min_temp_compare = fle.getResult(se4, wettercom_compare_query)
     elif weatherapp == 'wetterde':
         wetterde_compare_query = se5.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
         min_temp_compare = fle.getResult(se5, wetterde_compare_query)
     else:
         wetterdienstde_compare_query = se6.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wetterdienstde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wetterdienstde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
         min_temp_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
-    diff(min_temp_compare)
-    mean_square_error(min_temp_compare)
-    return min_temp_compare
+    if not min_temp_compare:
+        diff(min_temp_compare)
+        mean_square_error(min_temp_compare)
+        return min_temp_compare
+    else:
+        print("not data to compare")
 
 def min_temp_select(weatherapp):
 
     if weatherapp == 'accuweathercom':
-        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, accuweathercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, accuweathercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
         max_temp_compare = fle.getResult(se2, accuweather_compare_query)
     elif weatherapp == 'openweathermaporg':
         openweather_compare_query = se3.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, openweathermaporg as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, openweathermaporg as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
         max_temp_compare = fle.getResult(se3, openweather_compare_query)
     elif weatherapp == 'wettercom':
         wettercom_compare_query = se4.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wettercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wettercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
         max_temp_compare = fle.getResult(se4, wettercom_compare_query)
     elif weatherapp == 'wetterde':
         wetterde_compare_query = se5.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         max_temp_compare = fle.getResult(se5, wetterde_compare_query)
     else:
         wetterdienstde_compare_query = se6.execute(
-        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterdienstde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterdienstde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         max_temp_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
     diff(max_temp_compare)
@@ -97,31 +102,63 @@ def min_temp_select(weatherapp):
 def cloud_select(weatherapp):
 
     if weatherapp == 'accuweathercom':
-        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, accuweathercom as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, accuweathercom as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         cloud_compare = fle.getResult(se2, accuweather_compare_query)
     elif weatherapp == 'openweathermaporg':
         openweather_compare_query = se3.execute(
-        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, openweathermaporg as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, openweathermaporg as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         cloud_compare = fle.getResult(se3, openweather_compare_query)
     elif weatherapp == 'wettercom':
         wettercom_compare_query = se4.execute(
-        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wettercom as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wettercom as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         cloud_compare = fle.getResult(se4, wettercom_compare_query)
     elif weatherapp == 'wetterde':
         wetterde_compare_query = se5.execute(
-        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wetterde as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wetterde as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         cloud_compare = fle.getResult(se5, wetterde_compare_query)
     else:
         wetterdienstde_compare_query = se6.execute(
-        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wetterdienstde as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, coverage_amount, clouds from dwd, wetterdienstde as app where clouds <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
         cloud_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
-    diff(cloud_compare)
-    spearman(cloud_compare)
-    mean_square_error(cloud_compare)
-    return cloud_compare
+    if not cloud_compare:
+        diff(cloud_compare)
+        spearman(cloud_compare)
+        mean_square_error(cloud_compare)
+        return cloud_compare
+    else:
+        print("no data to compare")
 
 
+def wind_speed_select(weatherapp):
+
+    if weatherapp == 'accuweathercom':
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, average_wind_speed, wind_speed from dwd, accuweathercom as app where wind_speed <> NULL and coverage_amount <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
+        wind_speed_compare = fle.getResult(se2, accuweather_compare_query)
+    elif weatherapp == 'openweathermaporg':
+        openweather_compare_query = se3.execute(
+        'select dwd.postcode, dwd.measure_date, average_wind_speed, wind_speed from dwd, openweathermaporg as app where wind_speed <> NULL and average_wind_speed <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
+        wind_speed_compare = fle.getResult(se3, openweather_compare_query)
+    elif weatherapp == 'wettercom':
+        wettercom_compare_query = se4.execute(
+        'select dwd.postcode, dwd.measure_date, caverage_wind_speed, wind_speed from dwd, wettercom as app where clouds <> NULL and average_wind_speed <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
+        wind_speed_compare = fle.getResult(se4, wettercom_compare_query)
+    elif weatherapp == 'wetterde':
+        wetterde_compare_query = se5.execute(
+        'select dwd.postcode, dwd.measure_date, average_wind_speed, wind_speed from dwd, wetterde as app where wind_speed <> NULL and average_wind_speed <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode  and dwd.measure_date > 20180520');
+        wind_speed_compare = fle.getResult(se5, wetterde_compare_query)
+    else:
+        wetterdienstde_compare_query = se6.execute(
+        'select dwd.postcode, dwd.measure_date, average_wind_speed, wind_speed from dwd, wetterdienstde as app where wind_speed <> NULL and average_wind_speed <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode and dwd.measure_date > 20180520');
+        wind_speed_compare = fle.getResult(se6, wetterdienstde_compare_query)
+
+    if not wind_speed_compare:
+        diff(wind_speed_compare)
+        spearman(wind_speed_compare)
+        mean_square_error(wind_speed_compare)
+        return wind_speed_compare
+    else:
+        return print("not data to compare")
 
 
 
