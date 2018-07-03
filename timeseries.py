@@ -9,14 +9,10 @@ import sqlalchemy as sqla
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
 
-# remove this!
-import sys
-sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
-
 import FunctionLibraryExtended as fle
 
 # get data from the database
-def get_data():
+def get_data(query):
 	Base = declarative_base()
 	# ask user to enter username and password
 	engine = create_engine('mysql+pymysql://dwdtestuser:asdassaj14123@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
@@ -29,7 +25,7 @@ def get_data():
     # Get Table
 	table = metadata.tables['dwd']
 	# NOT CONTAINS(sun_hours, None)
-	result = engine.execute("SELECT measure_date, AVG(average_temp) FROM dwd GROUP BY measure_date;")
+	result = engine.execute(query)
 	#result = engine.execute("SELECT station_name, measure_date, sun_hours FROM dwd WHERE station_name LIKE 'Berlin%%' AND NOT CONTAINS(sun_hours, None)")
 	return np.vstack(result)
 
@@ -42,7 +38,8 @@ def plot_timeseries(plot_data, title):
 	plt.show()
 
 def main():
-	stack = get_data()
+	# plot daily average temperatures
+	stack = get_data("SELECT measure_date, AVG(average_temp) FROM dwd GROUP BY measure_date;")
 	# find start date of stack (remove trailing '.0' and convert to date format)
 	start_date = str(int(stack[0,0]))
 	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
@@ -53,6 +50,7 @@ def main():
 	# print(plot_data)
 	plot_timeseries(plot_data, "Measured average daily temperatures/˚C")
 
+	# plot the FFT
 	fft = scipy.fftpack.fft(plot_data)
 	fft_series = pd.Series(fft)
 	fft_series.plot()
@@ -60,6 +58,13 @@ def main():
 	# print(fft)
 	# plot_timeseries(fft, "FFT of average daily temperatures")
 
+	# plot average annual temperatures
+	stack = get_data("SELECT LEFT(measure_date, 4), AVG(average_temp) FROM dwd GROUP BY LEFT(measure_date, 4);")
+	print(stack)
+	plot_data = pd.Series(stack[:,1], index=pd.date_range(stack[0][0], periods=stack.shape[0], freq='Y'))
+	plot_data = plot_data.astype(float)
+	print(plot_data)
+	plot_timeseries(plot_data, "Measured average annual temperatures/˚C")
 
 if __name__ == "__main__":
     main()
