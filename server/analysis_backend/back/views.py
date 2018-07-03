@@ -9,10 +9,11 @@ def index(request):
 
 
 
-def averageTemp(request):
-    postcode = request.GET.get('postcode',None)
-    date = request.GET.get('date',None)
-    if postcode==None or date==None:
-        return HttpResponse(status=500)
-    avgTemp = averageTemp(postcode,date)
+def avgMap(request):
+    year = request.GET.get('year',2018)
+    avgMap = average(year)
     return HttpResponse(avgTemp)
+
+
+def average(year=2018):
+    
