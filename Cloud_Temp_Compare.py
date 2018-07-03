@@ -23,17 +23,22 @@ wetter_de, se5 = fle.getConnectionWetterde()
 wetter_dienst, se6 = fle.getConnectionWetterdienstde()
 
 
-dwd_porperty_index = 2
-app_property_index = 3
+
 
 """
 Queries:
 1. Min_Temp
 2. Max_Temp
 3. Clouds
+
+Functions:
+1. Difference
+2. RMSE
+3. Spearman
 """
 
-
+dwd_porperty_index = 2
+app_property_index = 3
 
 def min_temp_select(weatherapp):
 
@@ -50,7 +55,7 @@ def min_temp_select(weatherapp):
         min_temp_compare = fle.getResult(se4, wettercom_compare_query)
     elif weatherapp == 'wetterde':
         wetterde_compare_query = se5.execute(
-        'select dwd.postcode, dwd.measure_date, cdwd.min_temp, app.min_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        'select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
         min_temp_compare = fle.getResult(se5, wetterde_compare_query)
     else:
         wetterdienstde_compare_query = se6.execute(
@@ -61,7 +66,31 @@ def min_temp_select(weatherapp):
     mean_square_error(min_temp_compare)
     return min_temp_compare
 
+def min_temp_select(weatherapp):
 
+    if weatherapp == 'accuweathercom':
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, accuweathercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        max_temp_compare = fle.getResult(se2, accuweather_compare_query)
+    elif weatherapp == 'openweathermaporg':
+        openweather_compare_query = se3.execute(
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, openweathermaporg as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        max_temp_compare = fle.getResult(se3, openweather_compare_query)
+    elif weatherapp == 'wettercom':
+        wettercom_compare_query = se4.execute(
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wettercom as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        max_temp_compare = fle.getResult(se4, wettercom_compare_query)
+    elif weatherapp == 'wetterde':
+        wetterde_compare_query = se5.execute(
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        max_temp_compare = fle.getResult(se5, wetterde_compare_query)
+    else:
+        wetterdienstde_compare_query = se6.execute(
+        'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from dwd, wetterdienstde as app where dwd.min_temp <> NULL and app.min_temp <> NULL and dwd.measure_date = app.measure_date and dwd.postcode = app.postcode');
+        max_temp_compare = fle.getResult(se6, wetterdienstde_compare_query)
+
+    diff(max_temp_compare)
+    mean_square_error(max_temp_compare)
+    return max_temp_compare
 
 
 
