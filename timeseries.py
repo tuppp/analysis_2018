@@ -5,6 +5,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 import calmap
 
+import sys
+sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
+
 import sqlalchemy as sqla
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
@@ -63,6 +66,14 @@ def main():
 	plot_data = pd.Series(stack[:,1], index=data_range)
 	plot_timeseries(plot_data, "Measured average daily temperatures/˚C")
 
+	# calculate 0.05, 0.25, 0.5, 0.75, 0.95 quantiles of daily temperatures, grouped by year
+	quantile_data = plot_data.groupby(plot_data.index.year)
+	quantiles_05 = quantile_data.quantile(0.05)
+	quantiles_25 = quantile_data.quantile(0.25)
+	quantiles_50 = quantile_data.quantile(0.5)
+	quantiles_75 = quantile_data.quantile(0.75)
+	quantiles_95 = quantile_data.quantile(0.95)
+
 	# plot the FFT
 	# fft = scipy.fftpack.fft(plot_data)
 	# fft_series = pd.Series(fft)
@@ -77,8 +88,15 @@ def main():
 	print(plot_data)
 	plot_timeseries(plot_data, "Measured average annual temperatures/˚C")
 
-	# plot top/bottom 20% quantiles of annual temperatures
-	# data = get_data("SELECT measure_date, average_temp FROM dwd GROUP BY measure_date;")
+	# plot quantiles
+	matplotlib.rcParams.update({'font.size': 8})
+	plt.figure()
+	plt.title("TEST")
+	d = pd.concat([quantiles_05, quantiles_25, quantiles_50, quantiles_75, quantiles_95], axis=1)
+	# d = d.rename(columns={"0": "05", "1": "95"})
+	print(d)
+	d.plot()
+	plt.show()
 
 	# plot deviation between forecast data and dwd data
 	# forecast_data, dwd_data = forecast_deviation()
