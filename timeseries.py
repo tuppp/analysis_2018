@@ -12,7 +12,7 @@ from sqlalchemy.ext.declarative import declarative_base
 import FunctionLibraryExtended as fle
 
 # get data from the database
-def get_data(query):
+def get_data(query, table='dwd'):
 	Base = declarative_base()
 	# ask user to enter username and password
 	engine = create_engine('mysql+pymysql://dwdtestuser:asdassaj14123@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
@@ -23,7 +23,7 @@ def get_data(query):
    	# connect to database
 	metadata = MetaData(engine, reflect=True)
     # Get Table
-	table = metadata.tables['dwd']
+	table = metadata.tables[table]
 	# NOT CONTAINS(sun_hours, None)
 	result = engine.execute(query)
 	#result = engine.execute("SELECT station_name, measure_date, sun_hours FROM dwd WHERE station_name LIKE 'Berlin%%' AND NOT CONTAINS(sun_hours, None)")
@@ -34,12 +34,26 @@ def plot_timeseries(plot_data, title):
 	matplotlib.rcParams.update({'font.size': 8})
 	plt.figure()
 	plt.title(title)
+	# for x in plot_data:
+	# 	x.plot()
 	plot_data.plot()
 	plt.show()
 
+def forecast_deviation(feature=None, forecast_provider="accuweathercom"):
+	forecast_data = get_data("SELECT measure_date, AVG(min_temp), AVG(max_temp) FROM accuweathercom GROUP BY measure_date;", 'accuweathercom')
+	start_date = str(int(forecast_data[0,0]))
+	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
+	dwd_data = get_data("SELECT measure_date, AVG(average_temp) FROM dwd WHERE (measure_date >= "+start_date+") GROUP BY measure_date;", 'dwd')
+	
+	# TODO pd.date_range()
+	# TODO pd.Series()
+
+	return forecast_data, dwd_data
+
 def main():
-	# plot daily average temperatures
-	stack = get_data("SELECT measure_date, AVG(average_temp) FROM dwd GROUP BY measure_date;")
+	# plot daily average temperatures (where there are at least 100 weather stations)
+	stack = get_data("SELECT t.md, t.avgtemp FROM (select measure_date as md, AVG(average_temp) as avgtemp, COUNT(station_name) as num from dwd GROUP BY measure_date) as t WHERE t.num >= 100;")
+
 	# find start date of stack (remove trailing '.0' and convert to date format)
 	start_date = str(int(stack[0,0]))
 	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
@@ -47,24 +61,28 @@ def main():
 	data_range = pd.date_range(start_date, periods=stack.shape[0], freq='D')
 	# compute difference of the two time series
 	plot_data = pd.Series(stack[:,1], index=data_range)
-	# print(plot_data)
 	plot_timeseries(plot_data, "Measured average daily temperatures/˚C")
 
 	# plot the FFT
-	fft = scipy.fftpack.fft(plot_data)
-	fft_series = pd.Series(fft)
-	fft_series.plot()
-	plt.show()
-	# print(fft)
-	# plot_timeseries(fft, "FFT of average daily temperatures")
+	# fft = scipy.fftpack.fft(plot_data)
+	# fft_series = pd.Series(fft)
+	# fft_series.plot()
+	# plt.show()
 
-	# plot average annual temperatures
-	stack = get_data("SELECT LEFT(measure_date, 4), AVG(average_temp) FROM dwd GROUP BY LEFT(measure_date, 4);")
+	# plot average annual temperatures (where there are at least 100 weather stations)
+	stack = get_data("SELECT LEFT(t.md, 4), AVG(t.avgtemp) FROM (select measure_date as md, AVG(average_temp) as avgtemp, COUNT(station_name) as num from dwd GROUP BY measure_date) as t WHERE t.num >= 100 GROUP BY LEFT(t.md, 4);")
 	print(stack)
 	plot_data = pd.Series(stack[:,1], index=pd.date_range(stack[0][0], periods=stack.shape[0], freq='Y'))
 	plot_data = plot_data.astype(float)
 	print(plot_data)
 	plot_timeseries(plot_data, "Measured average annual temperatures/˚C")
+
+	# plot top/bottom 20% quantiles of annual temperatures
+	# data = get_data("SELECT measure_date, average_temp FROM dwd GROUP BY measure_date;")
+
+	# plot deviation between forecast data and dwd data
+	# forecast_data, dwd_data = forecast_deviation()
+	# plot_timeseries([forecast_data, dwd_data], "Measured + predicted max/min temp (daily)")
 
 if __name__ == "__main__":
     main()
