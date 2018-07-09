@@ -3,7 +3,16 @@ import numpy as np
 import scipy as sc
 from scipy import stats
 
-
+'''
+Queries: DWD
+1.max_temp
+2.min_temp
+3.coverage_amount
+4.average_wind_speed
+5.precipitation_amount
+6.sun_hours
+7. relative_himidity (ja der rechtschreibfehler steht so im dwd)
+'''
 #postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 postcodescities = pd.read_csv("city_to_zipcode.dat")
 #dwd_data = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
@@ -11,17 +20,30 @@ dwd_data_max_temp = pd.read_csv("dwd_data_max_temp.csv")
 dwd_data_min_temp = pd.read_csv("dwd_data_min_temp.csv")
 dwd_data_coverage_amount = pd.read_csv("dwd_data_coverage_amount.csv")
 dwd_data_average_wind_speed = pd.read_csv("dwd_data_average_wind_speed.csv")
+dwd_data_precipitation_amount = pd.read_csv("dwd_data_precipitation_amount.csv")
+dwd_data_sun_hours = pd.read_csv("dwd_data_sun_hours.csv")
+dwd_data_relative_himidity = pd.read_csv("dwd_data_relative_himidity.csv")
 
 
 
 '''
-Accuwaether Analysation for max_temp, min_temp, clouds, wind_speed
+Accuwaether Analysation for:
+1.max_temp
+2.min_temp
+3.coverage_amount
+4.wind_speed
+5.precipitation_amount
+6.sun_hours
+7.humidity_prob
 '''
 #acc_data = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/acc_data.csv")
 acc_data_max_temp = pd.read_csv("acc_data_max_temp.csv")
 acc_data_min_temp = pd.read_csv("acc_data_min_temp.csv")
 acc_data_clouds = pd.read_csv("acc_data_clouds.csv")
 acc_data_wind_speed =pd.read_csv("acc_data_wind_speed.csv")
+acc_data_precipitation_amount =pd.read_csv("acc_data_precipitation_amount.csv")
+acc_data_sun_hours =pd.read_csv("acc_data_sun_hours.csv")
+acc_data_humidity_prob =pd.read_csv("acc_data_humidity_prob.csv")
 
 
 
@@ -42,8 +64,21 @@ mapped_wind_speed = pd.merge(dwd_data_average_wind_speed, postcodescities, on="p
 doublemap_wind_speed = pd.merge(mapped_wind_speed, acc_data_wind_speed, on=("city", "date"))
 acc_mapped_wind_speed = pd.merge(acc_data_wind_speed, postcodescities, on="city")
 
-print('max:',doublemap_max_temp)
-print('min_',doublemap_min_temp)
+mapped_precipitation_amount = pd.merge(dwd_data_precipitation_amount, postcodescities, on="postcode")
+doublemap_precipitation_amount = pd.merge(mapped_precipitation_amount, acc_data_precipitation_amount, on=("city", "date"))
+acc_mapped_precipitation_amount = pd.merge(acc_data_precipitation_amount, postcodescities, on="city")
+
+mapped_sun_hours = pd.merge(dwd_data_sun_hours, postcodescities, on="postcode")
+doublemap_sun_hours = pd.merge(mapped_sun_hours, acc_data_sun_hours, on=("city", "date"))
+acc_mapped_sun_hours = pd.merge(acc_data_sun_hours, postcodescities, on="city")
+
+mapped_humiditiy_prob = pd.merge(dwd_data_relative_himidity, postcodescities, on="postcode")
+doublemap_humidity_prob= pd.merge(mapped_humiditiy_prob, acc_data_humidity_prob, on=("city", "date"))
+acc_mapped_humiditiy_prob = pd.merge(acc_data_humidity_prob, postcodescities, on="city")
+
+
+#print('pre:',doublemap_precipitation_amount)
+#print('min_',doublemap_min_temp)
 #print(acc_mapped)
 #print(mapped)
 #print(doublemap)
@@ -80,6 +115,21 @@ systematic_error_wind_speed = (abs(wind_speed - wind_speed_prediction)).mean()
 unsystematic_error_wind_speed = ((wind_speed - wind_speed_prediction) ** 2).mean()
 print("mse_wind_speed: " + str(means_squared_error_wind_speed))
 
+
+precipitation_amount = doublemap_precipitation_amount["precipitation_amount_x"]
+precipitation_amount_prediction = doublemap_precipitation_amount["precipitation_amount_y"]
+means_squared_error_precipitation_amount = ((precipitation_amount - precipitation_amount_prediction)**2).mean()
+systematic_error_precipitation_amount = (abs(precipitation_amount - precipitation_amount_prediction)).mean()
+unsystematic_error_precipitation_amount = ((precipitation_amount - precipitation_amount_prediction) ** 2).mean()
+print("mse_precipitation_amount: " + str(means_squared_error_precipitation_amount))
+
+
+sun_hours = doublemap_sun_hours["sun_hours_x"]
+sun_hours_prediction = doublemap_sun_hours["sun_hours_y"]
+means_squared_error_sun_hours = ((sun_hours - sun_hours_prediction)**2).mean()
+systematic_error_sun_hours = (abs(sun_hours - sun_hours_prediction)).mean()
+unsystematic_error_sun_hours = ((sun_hours - sun_hours_prediction) ** 2).mean()
+print("mse_sun_hours: " + str(means_squared_error_sun_hours))
 #print(acc_mapped)
 
 '''for index, row in acc_mapped.iterrows():
