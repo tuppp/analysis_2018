@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
+sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
 
 
 import FunctionLibraryExtended as fl
@@ -50,30 +50,137 @@ print("query: ")
 #one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
 #dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
 
-dwd_data_query = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522")
+'''
+Queries: Accuweather
+1.max_temp
+2.min_temp
+3.coverage_amount
+4.average_wind_speed
+'''
+dwd_data_query_max_temp = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_min_temp = se.execute("SELECT measure_date, min_temp, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_coverage_amount = se.execute("SELECT measure_date, coverage_amount, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_average_wind_speed = se.execute("SELECT measure_date, average_wind_speed, postcode FROM dwd WHERE measure_date > 20180522")
+
+
+
 #difference between the date where prediction was created and the date which the prediction is for
 diff = 1
-accuweather_data_query = se.execute("SELECT measure_date_prediction, min_temp AS max_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+
+'''
+Queries: Accuweathercom
+1.max_temp
+2.min_temp
+3.clouds
+4.wind_speed
+'''
+accuweather_data_query_max_temp = se.execute("SELECT measure_date_prediction, min_temp AS max_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_min_temp = se.execute("SELECT measure_date_prediction, max_temp AS min_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_clouds = se.execute("SELECT measure_date_prediction, clouds, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_speed, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+
 # AND d.measure_date = op.measure_date_prediction
 
 #result = fl.getResult(one_day_pred_query, se)
 #result = fl.getResult(dwd_dates_query, se)
 #result = fl.getResult(se.execute("SELECT DISTINCT measure_date FROM dwd"), se)
 #result = fl.getResult(postcodequery, se)
+
+'''
+DWD Query Results
+1.max_temp
+2.min_temp
+3.clouds
+4.windspeed
+'''
+
+'''
+1.max_temp
+'''
 print("start download")
-dwd_data = fl.getResult(dwd_data_query, se)
+dwd_data_max_temp = fl.getResult(dwd_data_query_max_temp, se)
 print("download done")
-print(dwd_data)
+print(dwd_data_max_temp)
 #pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
-dwd_df = pd.DataFrame(dwd_data, columns=("date", "max_temp", "postcode"))
-print(dwd_df)
-dwd_df.to_csv("dwd_data.csv", columns=("date", "max_temp", "postcode"), header=True)
-accuweather_data = fl.getResult(accuweather_data_query, se)
-acc_df = pd.DataFrame(accuweather_data)
-acc_df.columns = ("date", "max_temp", "city")
-acc_df.to_csv("acc_data.csv", columns=("date", "max_temp", "city"))
+dwd_df_max_temp = pd.DataFrame(dwd_data_max_temp, columns=("date", "max_temp", "postcode"))
+print(dwd_df_max_temp)
+dwd_df_max_temp.to_csv("dwd_data_max_temp.csv", columns=("date", "max_temp", "postcode"), header=True)
+
+'''
+2.min_temp
+'''
+#print("start download")
+dwd_data_min_temp = fl.getResult(dwd_data_query_min_temp, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_min_temp = pd.DataFrame(dwd_data_min_temp, columns=("date", "min_temp", "postcode"))
+#print(dwd_df)
+dwd_df_min_temp.to_csv("dwd_data_min_temp.csv", columns=("date", "min_temp", "postcode"), header=True)
 
 
+'''
+3.coverage_amount
+'''
+#print("start download")
+dwd_data_coverage_amount = fl.getResult(dwd_data_query_coverage_amount, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_coverage_amount = pd.DataFrame(dwd_data_coverage_amount, columns=("date", "coverage_amount", "postcode"))
+#print(dwd_df)
+dwd_df_coverage_amount.to_csv("dwd_data_coverage_amount.csv", columns=("date", "coverage_amount", "postcode"), header=True)
+
+'''
+4.average_wind_speed
+'''
+#print("start download")
+dwd_data_average_wind_speed = fl.getResult(dwd_data_query_average_wind_speed, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_average_wind_speed = pd.DataFrame(dwd_data_average_wind_speed, columns=("date", "average_wind_speed", "postcode"))
+#print(dwd_df)
+dwd_df_average_wind_speed.to_csv("dwd_data_average_wind_speed.csv", columns=("date", "average_wind_speed", "postcode"), header=True)
+'''
+Accuweathercom Query 
+1.max_temp
+2.min_temp
+3.clouds
+4.wind_speed
+'''
+
+'''
+1.max_temp
+'''
+accuweather_data_max_temp = fl.getResult(accuweather_data_query_max_temp, se)
+acc_df_max_temp = pd.DataFrame(accuweather_data_max_temp)
+acc_df_max_temp.columns = ("date", "max_temp", "city")
+acc_df_max_temp.to_csv("acc_data_max_temp.csv", columns=("date", "max_temp", "city"))
+
+'''
+2.min_temp
+'''
+accuweather_data_min_temp = fl.getResult(accuweather_data_query_min_temp,se)
+acc_df_min_temp = pd.DataFrame(accuweather_data_min_temp)
+acc_df_min_temp.columns = ("date", "max_temp", "city")
+acc_df_min_temp.to_csv("acc_data_min_temp.csv", columns=("date", "min_temp", "city"))
+
+'''
+3.clouds
+'''
+accuweather_data_clouds = fl.getResult(accuweather_data_query_clouds,se)
+acc_df_clouds = pd.DataFrame(accuweather_data_clouds)
+acc_df_clouds.columns = ("date", "max_temp", "city")
+acc_df_clouds.to_csv("acc_data_clouds.csv", columns=("date", "min_temp", "city"))
+
+'''
+4.windspeed
+'''
+accuweather_data_winds_peed = fl.getResult(accuweather_data_query_wind_speed,se)
+acc_df_wind_speed = pd.DataFrame(accuweather_data_winds_peed)
+acc_df_wind_speed.columns = ("date", "max_temp", "city")
+acc_df_wind_speed.to_csv("acc_data_wind_speed.csv", columns=("date", "min_temp", "city"))
 
 #postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 
