@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
-#sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
+#sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
+sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
 
 
 import FunctionLibraryExtended as fl
@@ -54,16 +54,22 @@ print("query: ")
 
 
 '''
-Queries: Accuweather
+Queries: DWD
 1.max_temp
 2.min_temp
 3.coverage_amount
 4.average_wind_speed
+5.precipitation_amount
+6.sun_hours
+7. relative_himidity (ja der rechtschreibfehler steht so im dwd)
 '''
 dwd_data_query_max_temp = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_min_temp = se.execute("SELECT measure_date, min_temp, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_coverage_amount = se.execute("SELECT measure_date, coverage_amount, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_average_wind_speed = se.execute("SELECT measure_date, average_wind_speed, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_precipitation_amount = se.execute("SELECT measure_date, precipitation_amount, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_sun_hours = se.execute("SELECT measure_date, sun_hours, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_relative_himidity = se.execute("SELECT measure_date, relative_himidity, postcode FROM dwd WHERE measure_date > 20180522")
 
 
 
@@ -74,13 +80,19 @@ diff = 1
 Queries: Accuweathercom
 1.max_temp
 2.min_temp
-3.clouds
+3.coverage_amount
 4.wind_speed
+5.precipitation_amount
+6.sun_hours
+7.humidity_prob
 '''
 accuweather_data_query_max_temp = se.execute("SELECT measure_date_prediction, min_temp AS max_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 accuweather_data_query_min_temp = se.execute("SELECT measure_date_prediction, max_temp AS min_temp, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 accuweather_data_query_clouds = se.execute("SELECT measure_date_prediction, clouds, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 accuweather_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_speed, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_precipitation_amount = se.execute("SELECT measure_date_prediction, precipitation_amount, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_sun_hours = se.execute("SELECT measure_date_prediction, sun_hours, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+accuweather_data_query_humidity_prob = se.execute("SELECT measure_date_prediction, humidity_prob, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 
 # AND d.measure_date = op.measure_date_prediction
 
@@ -97,6 +109,9 @@ DWD Query Results
 2.min_temp
 3.clouds
 4.windspeed
+5.precipitation_amount
+6.sun_hours
+7. relative_himidity (ja der rechtschreibfehler steht so im dwd)
 '''
 
 '''
@@ -147,12 +162,52 @@ dwd_data_average_wind_speed = fl.getResult(dwd_data_query_average_wind_speed, se
 dwd_df_average_wind_speed = pd.DataFrame(dwd_data_average_wind_speed, columns=("date", "average_wind_speed", "postcode"))
 #print(dwd_df)
 dwd_df_average_wind_speed.to_csv("dwd_data_average_wind_speed.csv", columns=("date", "average_wind_speed", "postcode"), header=True)
+
+'''
+5.precipitation_amount
+'''
+#print("start download")
+dwd_data_precipitation_amount = fl.getResult(dwd_data_query_precipitation_amount, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_precipitation_amount = pd.DataFrame(dwd_data_precipitation_amount, columns=("date", "precipitation_amount", "postcode"))
+#print(dwd_df)
+dwd_df_precipitation_amount.to_csv("dwd_data_precipitation_amount.csv", columns=("date", "precipitation_amount", "postcode"), header=True)
+
+'''
+6.sun_hours
+'''
+#print("start download")
+dwd_data_sun_hours = fl.getResult(dwd_data_query_sun_hours, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_sun_hours = pd.DataFrame(dwd_data_sun_hours, columns=("date", "sun_hours", "postcode"))
+#print(dwd_df)
+dwd_df_sun_hours.to_csv("dwd_data_sun_hours.csv", columns=("date", "sun_hours", "postcode"), header=True)
+
+'''
+7.relative_himidity
+'''
+#print("start download")
+dwd_data_relative_himidity = fl.getResult(dwd_data_query_relative_himidity, se)
+#print("download done")
+#print(dwd_data)
+#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
+dwd_df_relative_himidity = pd.DataFrame(dwd_data_relative_himidity, columns=("date", "arelative_himidity", "postcode"))
+#print(dwd_df)
+dwd_df_relative_himidity.to_csv("dwd_data_relative_himidity.csv", columns=("date", "relative_himidity", "postcode"), header=True)
+
 '''
 Accuweathercom Query 
 1.max_temp
 2.min_temp
 3.clouds
 4.wind_speed
+5.precipitation_amount
+6.sun_hours
+7.humidity_prob
 '''
 
 '''
@@ -187,6 +242,29 @@ acc_df_wind_speed = pd.DataFrame(accuweather_data_winds_peed)
 acc_df_wind_speed.columns = ("date", "wind_speed", "city")
 acc_df_wind_speed.to_csv("acc_data_wind_speed.csv", columns=("date", "wind_speed", "city"))
 
+
+'''
+5.precipitation_amount
+'''
+accuweather_data_precipitation_amount = fl.getResult(accuweather_data_query_precipitation_amount,se)
+acc_df_precipitation_amount = pd.DataFrame(accuweather_data_winds_peed)
+acc_df_precipitation_amount.columns = ("date", "precipitation_amount", "city")
+acc_df_precipitation_amount.to_csv("acc_data_precipitation_amount.csv", columns=("date", "precipitation_amount", "city"))
+
+'''
+6.sun_hours
+'''
+accuweather_data_sun_hours = fl.getResult(accuweather_data_query_sun_hours,se)
+acc_df_sun_hours = pd.DataFrame(accuweather_data_winds_peed)
+acc_df_sun_hours.columns = ("date", "sun_hours", "city")
+acc_df_sun_hours.to_csv("acc_data_sun_hours.csv", columns=("date", "sun_hours", "city"))
+'''
+7.7.humidity_prob
+'''
+accuweather_data_humidity_prob = fl.getResult(accuweather_data_query_humidity_prob,se)
+acc_df_humidity_prob = pd.DataFrame(accuweather_data_humidity_prob)
+acc_df_humidity_prob.columns = ("date", "humidity_prob", "city")
+acc_df_humidity_prob.to_csv("acc_data_humidity_prob.csv", columns=("date", "humidity_prob", "city"))
 #postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 
 #for x in dwd_data:
