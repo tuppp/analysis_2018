@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
+sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
+#sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
 
 
 import FunctionLibraryExtended as fl
@@ -50,6 +51,8 @@ print("query: ")
 #one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
 #dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
 
+
+
 '''
 Queries: Accuweather
 1.max_temp
@@ -86,8 +89,10 @@ accuweather_data_query_wind_speed = se.execute("SELECT measure_date_prediction, 
 #result = fl.getResult(se.execute("SELECT DISTINCT measure_date FROM dwd"), se)
 #result = fl.getResult(postcodequery, se)
 
+
 '''
-DWD Query Results
+Falls doch alles in eine CVS: mode = 'a'
+DWD Query Results 
 1.max_temp
 2.min_temp
 3.clouds
@@ -163,7 +168,7 @@ acc_df_max_temp.to_csv("acc_data_max_temp.csv", columns=("date", "max_temp", "ci
 '''
 accuweather_data_min_temp = fl.getResult(accuweather_data_query_min_temp,se)
 acc_df_min_temp = pd.DataFrame(accuweather_data_min_temp)
-acc_df_min_temp.columns = ("date", "max_temp", "city")
+acc_df_min_temp.columns = ("date", "min_temp", "city")
 acc_df_min_temp.to_csv("acc_data_min_temp.csv", columns=("date", "min_temp", "city"))
 
 '''
@@ -171,16 +176,16 @@ acc_df_min_temp.to_csv("acc_data_min_temp.csv", columns=("date", "min_temp", "ci
 '''
 accuweather_data_clouds = fl.getResult(accuweather_data_query_clouds,se)
 acc_df_clouds = pd.DataFrame(accuweather_data_clouds)
-acc_df_clouds.columns = ("date", "max_temp", "city")
-acc_df_clouds.to_csv("acc_data_clouds.csv", columns=("date", "min_temp", "city"))
+acc_df_clouds.columns = ("date", "clouds", "city")
+acc_df_clouds.to_csv("acc_data_clouds.csv", columns=("date", "clouds", "city"))
 
 '''
 4.windspeed
 '''
 accuweather_data_winds_peed = fl.getResult(accuweather_data_query_wind_speed,se)
 acc_df_wind_speed = pd.DataFrame(accuweather_data_winds_peed)
-acc_df_wind_speed.columns = ("date", "max_temp", "city")
-acc_df_wind_speed.to_csv("acc_data_wind_speed.csv", columns=("date", "min_temp", "city"))
+acc_df_wind_speed.columns = ("date", "wind_speed", "city")
+acc_df_wind_speed.to_csv("acc_data_wind_speed.csv", columns=("date", "wind_speed", "city"))
 
 #postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 
