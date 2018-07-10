@@ -1,12 +1,10 @@
 import numpy as np
-import scipy.fftpack
+# import scipy.fftpack
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 import matplotlib
 import matplotlib.pyplot as plt
 import calmap
-
-import sys
-sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
 
 import sqlalchemy as sqla
 from sqlalchemy import *
@@ -17,8 +15,8 @@ import FunctionLibraryExtended as fle
 # get data from the database
 def get_data(query, table='dwd'):
 	Base = declarative_base()
-	# ask user to enter username and password
-	engine = create_engine('mysql+pymysql://dwdtestuser:asdassaj14123@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
+	# TODO: ask user to enter username and password
+	engine = create_engine('mysql+pymysql://dwdtestuser:', password, '@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
 	Base.metadata.create_all(engine)
 	Session = sqla.orm.sessionmaker()
 	Session.configure(bind=engine)
@@ -88,10 +86,28 @@ def main():
 	print(plot_data)
 	plot_timeseries(plot_data, "Measured average annual temperatures/˚C")
 
-	# plot quantiles
+	# plot regression (TODO: scales, labels, module parameters to plot)
+	plot_data_arrary = plot_data.values.reshape(-1, 1)
+	plot_data_index_array = plot_data.index.year.values.reshape(-1, 1)
+	model = LinearRegression().fit(plot_data_index_array, plot_data_arrary)
+	m = model.coef_[0]
+	b = model.intercept_
+	print("m: ", m, " b: ", b)
+	# compute regression line:
+	diabetes_y_pred = model.predict(plot_data_index_array)
+	# create plot:
+	plt.plot(plot_data_index_array, plot_data_arrary,  color='black', linewidth=1)
+	plt.plot(plot_data_index_array, diabetes_y_pred, color='blue', linewidth=1)
+	plt.xticks()
+	plt.yticks()
+	plt.xlabel("Year")
+	plt.ylabel("Annual average temperature/˚C")
+	plt.title("Change in average temperature: %s ˚C/annum"%(m))
+	plt.show()
+
+	# plot quantiles and linear regression
 	matplotlib.rcParams.update({'font.size': 8})
 	plt.figure()
-	plt.title("TEST")
 	d = pd.concat([quantiles_05, quantiles_25, quantiles_50, quantiles_75, quantiles_95], axis=1)
 	# d = d.rename(columns={"0": "05", "1": "95"})
 	print(d)
