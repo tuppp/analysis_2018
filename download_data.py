@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import sys
 
-#sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
-sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
+sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
+#sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
 
 
 import FunctionLibraryExtended as fl
