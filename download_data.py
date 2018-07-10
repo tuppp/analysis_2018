@@ -14,6 +14,12 @@ acc, se_acc = fl.getConnectionAccuweathercom()
 
 op, se_op = fl.getConnectionOpenWeatherMaporg()
 
+wc, se_wc = fl.getConnectionWettercom()
+
+wd, se_wd  = fl.getConnectionWetterdienstde()
+
+
+
 #data = fl.getResult(fl.getPostcode(26197,dwd,se),se)
 
 #data = fl.getResult(fl.getTempAvg(Dwd,se),se)
@@ -51,6 +57,34 @@ print("query: ")
 #one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
 #dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
 
+'''
+Data available - copied from Slack:
+1 - es gibt einen Eintrag
+0 - Null
+				        accuweather	openweathermapporg	wettercom	wetterdienstde
+
+measure_date			        1		    1			        1		1
+measure_date_hour		        1		    1			        1		1
+measure_date_prediction		    1		    1			        1		1
+measure_date_prediction_hour	1		    1			        1		1
+postcode			            0		    1                   1		1
+city				            1		    1			        0		0
+temp				            0		    1			        0		0
+humidity_prob			        1		    0			        1		0
+precipitation_amount		    1		    0			        1		0
+precipitation_type		        0		    0			        0		0
+wind_speed			            1		    1			        0		0
+air_pressure_ground		        0		    1			        0		0
+air_pressure_sea		        0		    0			        0		0
+max_temp			            1		    1			        1		1
+min_temp			            1		    1			        1		1
+sun_hours			            1		    0			        1		0
+clouds				            1		    0			        0		0
+'''
+
+
+
+
 
 
 '''
@@ -61,7 +95,9 @@ Queries: DWD
 4.average_wind_speed
 5.precipitation_amount
 6.sun_hours
-7. relative_himidity (ja der rechtschreibfehler steht so im dwd)
+7. relative_himidity 
+8.air_pressure
+
 '''
 dwd_data_query_max_temp = se.execute("SELECT measure_date, max_temp, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_min_temp = se.execute("SELECT measure_date, min_temp, postcode FROM dwd WHERE measure_date > 20180522")
@@ -70,6 +106,7 @@ dwd_data_query_average_wind_speed = se.execute("SELECT measure_date, average_win
 dwd_data_query_precipitation_amount = se.execute("SELECT measure_date, precipitation_amount, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_sun_hours = se.execute("SELECT measure_date, sun_hours, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_relative_himidity = se.execute("SELECT measure_date, relative_himidity, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_air_pressure = se.execute("SELECT measure_date, air_pressure, postcode FROM dwd WHERE measure_date > 20180522")
 
 
 
@@ -94,6 +131,47 @@ accuweather_data_query_precipitation_amount = se.execute("SELECT measure_date_pr
 accuweather_data_query_sun_hours = se.execute("SELECT measure_date_prediction, sun_hours, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 accuweather_data_query_humidity_prob = se.execute("SELECT measure_date_prediction, humidity_prob, city FROM accuweathercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
 
+
+
+
+'''Queries: Openweathermaporg (owmo)
+1.max_temp
+2.min_temp
+3.air_pressure_ground
+4.wind_speed
+'''
+
+omwo_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_air_pressure_ground = se.execute("SELECT measure_date_prediction, air_pressure_ground, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_speed, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+
+
+'''Queries: wettercom 
+1.max_temp
+2.min_temp
+4.sun_hours
+5.precipitation_amount
+6.humidity_prob
+'''
+
+wettercom_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_query_sun_hours = se.execute("SELECT measure_date_prediction, sun_hours, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_precipitation_amount = se.execute("SELECT measure_date_prediction, precipitation_amount, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_humidity_prob = se.execute("SELECT measure_date_prediction, humidity_prob, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+
+'''
+Queries: wetterdienstde
+1.max_temp
+2.min_temp
+'''
+wetterdienstde_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM wetterdienstde   WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wetterdienstde_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM wetterdienstde   WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+
+
+
+
 # AND d.measure_date = op.measure_date_prediction
 
 #result = fl.getResult(one_day_pred_query, se)
@@ -117,13 +195,13 @@ DWD Query Results
 '''
 1.max_temp
 '''
-print("start download")
+#print("start download")
 dwd_data_max_temp = fl.getResult(dwd_data_query_max_temp, se)
-print("download done")
-print(dwd_data_max_temp)
+#print("download done")
+#print(dwd_data_max_temp)
 #pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_max_temp = pd.DataFrame(dwd_data_max_temp, columns=("date", "max_temp", "postcode"))
-print(dwd_df_max_temp)
+#print(dwd_df_max_temp)
 dwd_df_max_temp.to_csv("dwd_data_max_temp.csv", columns=("date", "max_temp", "postcode"), header=True)
 
 '''
@@ -200,7 +278,7 @@ dwd_df_relative_himidity = pd.DataFrame(dwd_data_relative_himidity, columns=("da
 dwd_df_relative_himidity.to_csv("dwd_data_relative_himidity.csv", columns=("date", "relative_himidity", "postcode"), header=True)
 
 '''
-Accuweathercom Query 
+Accuweathercom Query Results
 1.max_temp
 2.min_temp
 3.clouds
@@ -265,8 +343,43 @@ accuweather_data_humidity_prob = fl.getResult(accuweather_data_query_humidity_pr
 acc_df_humidity_prob = pd.DataFrame(accuweather_data_humidity_prob)
 acc_df_humidity_prob.columns = ("date", "humidity_prob", "city")
 acc_df_humidity_prob.to_csv("acc_data_humidity_prob.csv", columns=("date", "humidity_prob", "city"))
-#postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
 
+
+
+
+'''Queries: Openweathermaporg (owmo) Results
+1.max_temp
+2.min_temp
+3.air_pressure_ground
+4.wind_speed
+5.precipitation_amount
+6.humidity_prob
+
+owmo_data_max_temp = fl.getResult(omwo_data_query_max_temp, se)
+owmo_df_max_temp = pd.DataFrame(owmo_data_max_temp)
+owmo_df_max_temp.columns = ("date", "max_temp", "city")
+owmo_df_max_temp.to_csv("owmo_data_max_temp.csv", columns=("date", "max_temp", "city"))
+
+
+
+owmo_data_min_temp = fl.getResult(omwo_data_query_min_temp, se)
+owmo_df_min_temp = pd.DataFrame(owmo_data_min_temp)
+owmo_df_min_temp.columns = ("date", "min_temp", "city")
+owmo_df_min_temp.to_csv("owmo_data_min_temp.csv", columns=("date", "min_temp", "city"))
+
+
+owmo_data_air_pressure_ground = fl.getResult(omwo_data_query_air_pressure_ground, se)
+owmo_df_air_pressure_ground = pd.DataFrame(owmo_data_air_pressure_ground)
+owmo_df_air_pressure_ground.columns = ("date", "air_pressure_ground", "city")
+owmo_df_air_pressure_ground.to_csv("owmo_data_air_pressure_ground.csv", columns=("date", "air_pressure_ground", "city"))
+
+
+owmo_data_air_pressure_ground = fl.getResult(omwo_data_query_air_pressure_ground, se)
+owmo_df_air_pressure_ground = pd.DataFrame(owmo_data_air_pressure_ground)
+owmo_df_air_pressure_ground.columns = ("date", "air_pressure_ground", "city")
+owmo_df_air_pressure_ground.to_csv("owmo_data_air_pressure_ground.csv", columns=("date", "air_pressure_ground", "city"))
+#postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
+'''
 #for x in dwd_data:
    # print(x)
 
