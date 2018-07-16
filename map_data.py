@@ -1,42 +1,74 @@
 import pandas as pd
 import numpy as np
+import csv
 
-#postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
-postcodescities = pd.read_csv("city_to_zipcode.dat")
-#dwd_data = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
-dwd_data = pd.read_csv("dwd_data.csv")
+def mse(data, provider, days):
 
-#acc_data = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/acc_data.csv")
-acc_data = pd.read_csv("acc_data.csv")
+    means_squared_error = np.mean((data["max_temp_x"] - data["max_temp_y"]) ** 2)
+    print("Means Squared Error bei " + provider +" " +str(days) + " Tage im Vorraus: " + str(means_squared_error))
 
 
-
-mapped = pd.merge(dwd_data, postcodescities, on="postcode")
-
-doublemap = pd.merge(mapped, acc_data, on=("city", "date"))
-
-acc_mapped = pd.merge(acc_data, postcodescities, on="city")
+postcodescities = pd.read_csv("city_to_zipcode.dat", encoding="latin1")
+dwd_data = pd.read_csv("dwd_data.csv", encoding="latin1")
 
 
-#print(acc_mapped)
-#print(mapped)
-#print(doublemap)
-#doublemap.to_csv("mapped_data_accuweather.csv")
 
-#for index, row in doublemap.iterrows():
-    #print(row["max_temp_x"], row["max_temp_y"])
+#op_data_1 = pd.read_csv("min_temp_openweathermaporg_diff1.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+acc_data_1 = pd.read_csv("min_temp_accuweathercom_diff1.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wcom_data_1 = pd.read_csv("min_temp_wettercom_diff1.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wdde_data_1 = pd.read_csv("min_temp_wetterdienstde_diff1.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+acc_data_2 = pd.read_csv("min_temp_accuweathercom_diff2.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wcom_data_2 = pd.read_csv("min_temp_wettercom_diff2.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wdde_data_2 = pd.read_csv("min_temp_wetterdienstde_diff2.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+acc_data_3 = pd.read_csv("min_temp_accuweathercom_diff3.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wcom_data_3 = pd.read_csv("min_temp_wettercom_diff3.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
+wdde_data_3 = pd.read_csv("min_temp_wetterdienstde_diff3.csv", encoding="latin1").rename(columns={"min_temp":"max_temp"})
 
-max_temp = doublemap["max_temp_x"]
+#mapped_op_1 = pd.merge(op_data_1, postcodescities, on="city")
+mapped_acc_1 = pd.merge(acc_data_1, postcodescities, on="city")
+mapped_wcom_1 = pd.merge(wcom_data_1, postcodescities, on="city")
+mapped_acc_2 = pd.merge(acc_data_2, postcodescities, on="city")
+mapped_wcom_2 = pd.merge(wcom_data_2, postcodescities, on="city")
+mapped_acc_3 = pd.merge(acc_data_3, postcodescities, on="city")
+mapped_wcom_3 = pd.merge(wcom_data_3, postcodescities, on="city")
 
-max_temp_prediction = doublemap["max_temp_y"]
+#mapped_op_1 = mapped_op_1.rename(columns={'postcode_y': 'postcode'})
+mapped_acc_1 = mapped_acc_1.rename(columns= {'postcode_y': 'postcode'})
+mapped_wcom_1 = mapped_wcom_1.rename(columns={'postcode_y': 'postcode'})
+mapped_acc_2 = mapped_acc_2.rename(columns= {'postcode_y': 'postcode'})
+mapped_wcom_2 = mapped_wcom_2.rename(columns={'postcode_y': 'postcode'})
+mapped_acc_3 = mapped_acc_3.rename(columns= {'postcode_y': 'postcode'})
+mapped_wcom_3 = mapped_wcom_3.rename(columns={'postcode_y': 'postcode'})
 
-means_squared_error = ((max_temp - max_temp_prediction)**2).mean()
+#doublemap_op = pd.merge(dwd_data, mapped_op, on=("postcode", "date"))
+doublemap_acc_1 = pd.merge(dwd_data, mapped_acc_1, on=("postcode", "date"))
+mapped_wde_1 = pd.merge(dwd_data, wdde_data_1, on=("postcode", "date"))
+doublemap_wcom_1 = pd.merge(dwd_data, mapped_wcom_1, on=("postcode", "date"))
+doublemap_acc_2 = pd.merge(dwd_data, mapped_acc_2, on=("postcode", "date"))
+mapped_wde_2 = pd.merge(dwd_data, wdde_data_2, on=("postcode", "date"))
+doublemap_wcom_2 = pd.merge(dwd_data, mapped_wcom_2, on=("postcode", "date"))
+doublemap_acc_3 = pd.merge(dwd_data, mapped_acc_3, on=("postcode", "date"))
+mapped_wde_3 = pd.merge(dwd_data, wdde_data_3, on=("postcode", "date"))
+doublemap_wcom_3 = pd.merge(dwd_data, mapped_wcom_3, on=("postcode", "date"))
 
-systematic_error = (abs(max_temp - max_temp_prediction)).mean()
 
-unsystematic_error = ((max_temp - max_temp_prediction) ** 2).mean()
+mse(doublemap_acc_1, "accuweather", 1)
+mse(doublemap_wcom_1, "wetter.com", 1)
+mse(mapped_wde_1, "wetterde", 1)
 
-print("mse: " + str(means_squared_error))
+mse(doublemap_acc_2, "accuweather", 2)
+mse(doublemap_wcom_2, "wetter.com", 2)
+mse(mapped_wde_2, "wetterde", 2)
+
+mse(doublemap_acc_3, "accuweather", 3)
+mse(doublemap_wcom_3, "wetter.com", 3)
+mse(mapped_wde_3, "wetterde", 3)
+
+#for index, row in doublemap_acc_1.iterrows():
+#    print(row)
+
+
+
 
 
 
