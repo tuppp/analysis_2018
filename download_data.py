@@ -24,6 +24,13 @@ def download(file, diff, provider, data_type):
 print("start download")
 
 for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
+    download("min_temp_" + x + "_diff1.csv", 1, x, "min_temp")
+
+for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
+    download("min_temp_" + x + "_diff2.csv", 2, x, "min_temp")
+
+
+for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
     download("min_temp_" + x + "_diff3.csv", 3, x, "min_temp")
 
 
