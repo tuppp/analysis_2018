@@ -1,12 +1,10 @@
 import numpy as np
-import scipy.fftpack
+# import scipy.fftpack
 import pandas as pd
+from sklearn.linear_model import LinearRegression
 import matplotlib
 import matplotlib.pyplot as plt
 import calmap
-
-import sys
-sys.path.append('/Users/michaelstenzel/Documents/MKP/mkp_database/')
 
 import sqlalchemy as sqla
 from sqlalchemy import *
@@ -17,8 +15,8 @@ import FunctionLibraryExtended as fle
 # get data from the database
 def get_data(query, table='dwd'):
 	Base = declarative_base()
-	# ask user to enter username and password
-	engine = create_engine('mysql+pymysql://dwdtestuser:asdassaj14123@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
+	# TODO: ask user to enter username and password
+	engine = create_engine('mysql+pymysql://dwdtestuser:'+password+'.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
 	Base.metadata.create_all(engine)
 	Session = sqla.orm.sessionmaker()
 	Session.configure(bind=engine)
@@ -88,14 +86,66 @@ def main():
 	print(plot_data)
 	plot_timeseries(plot_data, "Measured average annual temperatures/˚C")
 
-	# plot quantiles
+	# plot regression (TODO: scales, labels, module parameters to plot)
+	plot_data_arrary = plot_data.values.reshape(-1, 1)
+	plot_data_index_array = plot_data.index.year.values.reshape(-1, 1)
+	model = LinearRegression().fit(plot_data_index_array, plot_data_arrary)
+	m = model.coef_[0]
+	b = model.intercept_
+	print("m: ", m, " b: ", b)
+	# compute regression line:
+	temp_pred = model.predict(plot_data_index_array)
+	# create plot:
+	plt.plot(plot_data_index_array, plot_data_arrary,  color='black', linewidth=1)
+	plt.plot(plot_data_index_array, temp_pred, color='blue', linewidth=1)
+	plt.xticks()
+	plt.yticks()
+	plt.xlabel("Year")
+	plt.ylabel("Annual average temperature/˚C")
+	plt.title("Change in average temperature: %s ˚C/annum"%(m))
+	plt.show()
+
+	# plot quantiles and linear regression
 	matplotlib.rcParams.update({'font.size': 8})
 	plt.figure()
-	plt.title("TEST")
-	d = pd.concat([quantiles_05, quantiles_25, quantiles_50, quantiles_75, quantiles_95], axis=1)
+	# d = pd.concat([quantiles_05, quantiles_25, quantiles_50, quantiles_75, quantiles_95], axis=1)
 	# d = d.rename(columns={"0": "05", "1": "95"})
-	print(d)
-	d.plot()
+	plt.plot(plot_data_index_array, quantiles_05,  color='black', linewidth=1)
+	plt.plot(plot_data_index_array, quantiles_25,  color='red', linewidth=1)
+	plt.plot(plot_data_index_array, quantiles_50,  color='blue', linewidth=1)
+	plt.plot(plot_data_index_array, quantiles_75,  color='yellow', linewidth=1)
+	plt.plot(plot_data_index_array, quantiles_95,  color='green', linewidth=1)
+
+	# TODO: vectorize, add slopes to plot
+	model_05 = LinearRegression().fit(plot_data_index_array, quantiles_05)
+	m_05 = model_05.coef_[0]
+	temp_pred_05 = model_05.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_05, color='black', linewidth=1)
+
+	model_25 = LinearRegression().fit(plot_data_index_array, quantiles_25)
+	m_25 = model_25.coef_[0]
+	temp_pred_25 = model_25.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_25, color='red', linewidth=1)
+
+	model_50 = LinearRegression().fit(plot_data_index_array, quantiles_50)
+	m_50 = model_50.coef_[0]
+	temp_pred_50 = model_50.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_50, color='blue', linewidth=1)
+
+	model_75 = LinearRegression().fit(plot_data_index_array, quantiles_75)
+	m_75 = model_75.coef_[0]
+	temp_pred_75 = model_75.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_75, color='yellow', linewidth=1)
+
+	model_95 = LinearRegression().fit(plot_data_index_array, quantiles_95)
+	m_95 = model_95.coef_[0]
+	temp_pred_95 = model_95.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_95, color='green', linewidth=1)
+
+	plt.xticks()
+	plt.yticks()
+	plt.xlabel("Year")
+	plt.ylabel("Quantiles of annual average temperature/˚C")
 	plt.show()
 
 	# plot deviation between forecast data and dwd data
