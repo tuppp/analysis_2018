@@ -45,27 +45,22 @@ app_property_index = 3
 def min_temp_select(weatherapp):
 
     if weatherapp == 'accuweathercom':
-        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.min_temp <> NULL) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from accuweathercom as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+        accuweather_compare_query = se2.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from accuweathercom as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         min_temp_compare = fle.getResult(se2, accuweather_compare_query)
     elif weatherapp == 'openweathermaporg':
-        openweather_compare_query = se3.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.min_temp <> NULL) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from openweathermaporg as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+        openweather_compare_query = se3.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 ) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from openweathermaporg as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         min_temp_compare = fle.getResult(se3, openweather_compare_query)
     elif weatherapp == 'wettercom':
-        wettercom_compare_query = se4.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.min_temp <> NULL) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wettercom as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+        wettercom_compare_query = se4.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 ) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wettercom as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         min_temp_compare = fle.getResult(se4, wettercom_compare_query)
     elif weatherapp == 'wetterde':
-        wetterde_compare_query = se5.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.min_temp <> NULL) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wetterde as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+        wetterde_compare_query = se5.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 ) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wetterde as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         min_temp_compare = fle.getResult(se5, wetterde_compare_query)
     else:
-        wetterdienstde_compare_query = se6.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.min_temp <> NULL) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wetterdienstse as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+        wetterdienstde_compare_query = se6.execute('select dwd.postcode, dwd.measure_date, dwd.min_temp, app.min_temp from (select dwd.postcode, dwd.min_temp, dwd.measure_date from dwd where measure_date > 20180522 ) as dwd join (select sum(app.min_temp)/count(app.min_temp) as min_temp, measure_date, postcode from wetterdienstse as app where app.min_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         min_temp_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
-    if not min_temp_compare:
-        diff(min_temp_compare)
-        mean_square_error(min_temp_compare)
-        return min_temp_compare
-    else:
-        print("not data to compare")
+    return min_temp_compare
 
 def max_temp_select(weatherapp):
 
@@ -83,14 +78,12 @@ def max_temp_select(weatherapp):
         max_temp_compare = fle.getResult(se5, wetterde_compare_query)
     else:
         wetterdienstde_compare_query = se6.execute(
-            'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from (select dwd.postcode, dwd.max_temp, dwd.measure_date from dwd where measure_date > 20180522 and dwd.max_temp <> NULL) as dwd join (select sum(app.max_temp)/count(app.max_temp) as max_temp, measure_date, postcode from wetterdienstde as app where app.max_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
+            'select dwd.postcode, dwd.measure_date, dwd.max_temp, app.max_temp from (select dwd.postcode, dwd.max_temp, dwd.measure_date from dwd where measure_date > 20180522 ) as dwd join (select sum(app.max_temp)/count(app.max_temp) as max_temp, measure_date, postcode from wetterdienstde as app where app.max_temp <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         max_temp_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
-    diff(max_temp_compare)
-    mean_square_error(max_temp_compare)
     return max_temp_compare
 
-
+##print('maxtemp') ###max_temp_select('wettercom'))
 
 def cloud_select(weatherapp):
 
@@ -110,15 +103,9 @@ def cloud_select(weatherapp):
         wetterdienstde_compare_query = se6.execute('select dwd.postcode, dwd.measure_date,coverage_amount, clouds_temp from (select dwd.postcode, coverage_amount, dwd.measure_date from dwd where measure_date > 20180522 and coverage_amount <> NULL) as dwd join (select sum(app.clouds)/count(app.clouds) as clouds, measure_date, postcode from wetterdienstde as app where clouds <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         cloud_compare = fle.getResult(se6, wetterdienstde_compare_query)
 
-    if not cloud_compare:
-        diff(cloud_compare)
-        spearman(cloud_compare)
-        mean_square_error(cloud_compare)
-        return cloud_compare
-    else:
-        print("no data to compare")
+    return cloud_compare
 
-
+print(cloud_select('wettercom'))
 def wind_speed_select(weatherapp):
 
     if weatherapp == 'accuweathercom':
@@ -136,13 +123,8 @@ def wind_speed_select(weatherapp):
     else:
         wetterdienstde_compare_query = se6.execute('select dwd.postcode, dwd.measure_date, average_wind_speed, wind_speed from (select dwd.postcode, dwd.average_wind_speed, dwd.measure_date from dwd where measure_date > 20180522 and average_wind_speed <> NULL) as dwd join (select sum(wind_speed)/count(wind_speed) as wind_speed, measure_date, postcode from wetterdienstde as app where wind_speed <> NULL group by measure_date, postcode) as app on dwd.measure_date = app.measure_date')
         wind_speed_compare = fle.getResult(se6, wetterdienstde_compare_query)
-    if not wind_speed_compare:
-        diff(wind_speed_compare)
-        mean_square_error(wind_speed_compare)
-        return wind_speed_compare
-    else:
-        return print("not data to compare")
 
+    return wind_speed_compare
 
 def cloud_convert_dwd(dwd_waetherapp_query_result):
     for object in dwd_waetherapp_query_result:
@@ -202,6 +184,23 @@ def spearman(dwd_waetherapp_query_result):
     dwd_waetherapp_query_result.append(korr)
     dwd_waetherapp_query_result.append(pval)
 
+def compare(app_name):
+    if app_name == 'openweathermaporg':
+       a = diff('openweathermaporg')
+       b = mean_square_error('openweathermaporg')
+       c = spearman('openweathermaporg')
+    elif app_name == 'wettercom':
+        a =  diff('wettercom')
+        b = mean_square_error('wettercom')
+        c = spearman('wettercom')
+    elif app_name == 'wetterdienstde':
+        a = diff('wetterdienstde')
+        b = mean_square_error( 'wetterdienstde')
+        c = spearman( 'wetterdienstde')
+    else :
+        print('invalid appName')
+
+    return    a,b,c
 
 
 
