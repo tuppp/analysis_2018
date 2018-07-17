@@ -6,6 +6,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import calmap
 
+
+
 import sqlalchemy as sqla
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
@@ -134,12 +136,102 @@ def plot_temp():
 	plt.title("Change in average temperature: %s ˚C per annum"%(m))
 	plt.show()
 
-def forecast_deviation(feature=None, forecast_provider="accuweathercom"):
-	forecast_data = get_data("SELECT measure_date, AVG(min_temp), AVG(max_temp) FROM accuweathercom GROUP BY measure_date;", 'accuweathercom')
-	start_date = str(int(forecast_data[0,0]))
+def forecast_deviation(feature=None, forecast_provider="accuweathercom", city="Berlin"):
+	# forecast_data = get_data("SELECT measure_date_prediction, AVG(sun_hours) FROM "+forecast_provider+" WHERE city LIKE '"+city+"%%' GROUP BY measure_date_prediction;", forecast_provider)
+	# forecast_data = get_data("SELECT measure_date, measure_date_prediction, sun_hours FROM accuweathercom WHERE city LIKE 'Berlin%%';", "accuweathercom")
+	forecast_data = get_data("SELECT measure_date, measure_date_prediction, sun_hours FROM accuweathercom WHERE (measure_date >= '20180606' AND city LIKE 'Berlin%%');", "accuweathercom")
+
+	# start_date = str(int(forecast_data[0,0]))
+	start_date = "20180606"
+	end_date = str(int(forecast_data[forecast_data.shape[0]-1,0]))
 	start_date = '%s-%s-%s' % (start_date[:4], start_date[4:6], start_date[6:])
-	dwd_data = get_data("SELECT measure_date, AVG(average_temp) FROM dwd WHERE (measure_date >= "+start_date+") GROUP BY measure_date;", 'dwd')
-	
+	# dwd_data = get_data("SELECT measure_date, AVG(sun_hours) FROM dwd WHERE (station_name LIKE '"+city+"%%' AND measure_date >= "+start_date+") GROUP BY measure_date;", 'dwd')
+	dwd_data = get_data("SELECT measure_date, AVG(sun_hours) FROM dwd WHERE (station_name LIKE '"+city+"%%' AND measure_date >= '20180606' AND measure_date <= '"+end_date+"') GROUP BY measure_date;", 'dwd')
+
+	# compute date range from the start_date and length of the time series
+	data_range = pd.date_range(start_date, periods=dwd_data.shape[0], freq='D')
+
+	# every 5th entry, starting at 1
+	predict_1_day = forecast_data[1::5]
+	predict_1_day = predict_1_day[0:(dwd_data.shape[0]),2]
+	# print(dwd_data[:,1])
+	print(predict_1_day.shape)
+
+	# every 5th entry, starting at 2
+	predict_2_day = forecast_data[2::5]
+	predict_2_day = predict_2_day[0:(dwd_data.shape[0]),2]
+
+	# every 5th entry, starting at 3
+	predict_3_day = forecast_data[3::5]
+	predict_3_day = predict_3_day[0:(dwd_data.shape[0]),2]
+
+	# every 5th entry, starting at 4
+	predict_4_day = forecast_data[4::5]
+	predict_4_day = predict_4_day[0:(dwd_data.shape[0]),2]
+
+	# print(predict_1_day.shape[0]-1)
+	# print(dwd_data.shape[0]-1)
+
+	# print(dwd_data[:,1].reshape(-1,1))
+	# print(dwd_data[:,1].reshape(-1,1).shape)
+
+	# deviation_1 = abs(predict_1_day[:, 2] - dwd_data[:predict_1_day.shape[0]-1,1])
+
+	# deviation_1 = abs(predict_1_day - dwd_data[:,1])
+	# deviation_2 = abs(predict_2_day - dwd_data[:,1])
+	# deviation_3 = abs(predict_3_day - dwd_data[:,1])
+	# deviation_4 = abs(predict_4_day - dwd_data[:,1])
+
+	deviation_1 = dwd_data[:,1] - predict_1_day
+	deviation_2 = dwd_data[:,1] - predict_2_day
+	deviation_3 = dwd_data[:,1] - predict_3_day
+	deviation_4 = dwd_data[:,1] - predict_4_day
+
+	# print(deviation_1)
+
+	# create time series from date_range and AVG(sun_hours) (forecast)
+	deviation_1_plot_data = pd.Series(deviation_1, index=data_range)
+	deviation_2_plot_data = pd.Series(deviation_2, index=data_range)
+	deviation_3_plot_data = pd.Series(deviation_3, index=data_range)
+	deviation_4_plot_data = pd.Series(deviation_4, index=data_range)
+	# print(deviation_1_plot_data)
+
+	rms_1 = np.sqrt(np.sum(deviation_1**2)/(dwd_data[:,1]).size)
+	rms_2 = np.sqrt(np.sum(deviation_2**2)/(dwd_data[:,1]).size)
+	rms_3 = np.sqrt(np.sum(deviation_3**2)/(dwd_data[:,1]).size)
+	rms_4 = np.sqrt(np.sum(deviation_4**2)/(dwd_data[:,1]).size)
+	print("RMS 1 day forecast: ", rms_1)
+	print("RMS 2 day forecast: ", rms_2)
+	print("RMS 3 day forecast: ", rms_3)
+	print("RMS 4 day forecast: ", rms_4)
+
+	# plot_timeseries(deviation_1_plot_data, "test")
+
+	# groupby weekday
+	weekday_deviation_1 = deviation_1_plot_data.groupby(deviation_1_plot_data.index.weekday).mean()
+	print(weekday_deviation_1)
+	weekday_deviation_2 = deviation_2_plot_data.groupby(deviation_2_plot_data.index.weekday).mean()
+	print(weekday_deviation_2)
+	weekday_deviation_3 = deviation_3_plot_data.groupby(deviation_3_plot_data.index.weekday).mean()
+	print(weekday_deviation_3)
+	weekday_deviation_4 = deviation_4_plot_data.groupby(deviation_4_plot_data.index.weekday).mean()
+	print(weekday_deviation_4)
+
+	# concat = pd.concat([weekday_deviation_1, weekday_deviation_2, weekday_deviation_3, weekday_deviation_4])
+	# print(concat)
+	# matplotlib.rcParams.update({'font.size': 8})
+	# plt.figure()
+	# plt.title("comp")
+	# concat.plot()
+	# plt.show()
+	plot_timeseries(weekday_deviation_1, "1-day deviation by weekday")
+	plot_timeseries(weekday_deviation_2, "2-day deviation by weekday")
+	plot_timeseries(weekday_deviation_3, "3-day deviation by weekday")
+	plot_timeseries(weekday_deviation_4, "4-day deviation by weekday")
+
+	# create time series from date_range and AVG(sun_hours) (forecast)
+	# dwd_plot_data = pd.Series(dwd_data[:,1], index=data_range)
+
 	# TODO pd.date_range()
 	# TODO pd.Series()
 
@@ -147,10 +239,12 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom"):
 
 def main():
 	# plot average annual temperatures (where there are at least 100 weather stations)
-	# plot_temp()
+	plot_temp()
 
 	# plot quantiles of annual average temperatures
 	plot_temp_quantiles("Berlin")
+
+	forecast_deviation("accuweathercom", "Berlin")
 
 	# plot deviation between forecast data and dwd data
 	# forecast_data, dwd_data = forecast_deviation()
