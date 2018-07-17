@@ -25,6 +25,7 @@ def map(forecast_app):
     dwd_data_precipitation_amount = pd.read_csv("dwd_data_precipitation_amount.csv")
     dwd_data_sun_hours = pd.read_csv("dwd_data_sun_hours.csv")
     dwd_data_relative_himidity = pd.read_csv("dwd_data_relative_himidity.csv")
+    dwd_data_air_pressure = pd.read_csv("dwd_data_air_pressure.csv")
 
 
     if forecast_app == 'accuweathercom':
@@ -97,29 +98,29 @@ def map(forecast_app):
     if forecast_app == 'openweathermaporg':
         openweathermaporg_data_max_temp = pd.read_csv("owmo_data_max_temp.csv")
         openweathermaporg_data_min_temp = pd.read_csv("owmo_data_min_temp.csv")
-        openweathermaporg_data_wind_speed = pd.read_csv("owmwo_data_wind_speed.csv")
-        openweathermaporg_data_air_pressure = pd.read_csv("owmo_data_air_pressure.csv")
+        openweathermaporg_data_wind_speed = pd.read_csv("owmo_data_wind_speed.csv")
+        openweathermaporg_data_air_pressure = pd.read_csv("owmo_data_air_pressure_ground.csv")
 
-        mapped_max_temp = pd.merge(dwd_data_max_temp, postcodescities, on="postcode")
-        doublemap_max_temp = pd.merge(mapped_max_temp, openweathermaporg_data_max_temp, on=("city", "date"))
-        openweathermaporg_mapped_max_temp = pd.merge(openweathermaporg_data_max_temp, postcodescities, on="city")
+        #mapped_max_temp = pd.merge(dwd_data_max_temp, postcodescities, on="postcode")
+        doublemap_max_temp = pd.merge(dwd_data_max_temp, openweathermaporg_data_max_temp, on=("postcode", "date"))
+        openweathermaporg_mapped_max_temp = pd.merge(openweathermaporg_data_max_temp, postcodescities, on="postcode")
 
-        mapped_min_temp = pd.merge(dwd_data_min_temp, postcodescities, on="postcode")
-        doublemap_min_temp = pd.merge(mapped_min_temp, openweathermaporg_data_min_temp, on=("city", "date"))
-        openweathermaporg_mapped_min_temp = pd.merge(openweathermaporg_data_min_temp, postcodescities, on="city")
+        #mapped_min_temp = pd.merge(dwd_data_min_temp, postcodescities, on="postcode")
+        doublemap_min_temp = pd.merge(dwd_data_min_temp, openweathermaporg_data_min_temp, on=("postcode", "date"))
+        openweathermaporg_mapped_min_temp = pd.merge(openweathermaporg_data_min_temp, postcodescities, on="postcode")
 
-        mapped_wind_speed = pd.merge(dwd_data_average_wind_speed, postcodescities, on="postcode")
-        doublemap_wind_speed = pd.merge(mapped_wind_speed, openweathermaporg_data_wind_speed, on=("city", "date"))
-        openweathermaporg_mapped_wind_speed = pd.merge(openweathermaporg_data_wind_speed, postcodescities, on="city")
+        #mapped_wind_speed = pd.merge(dwd_data_average_wind_speed, postcodescities, on="postcode")
+        doublemap_wind_speed = pd.merge(dwd_data_average_wind_speed, openweathermaporg_data_wind_speed, on=("postcode", "date"))
+        openweathermaporg_mapped_wind_speed = pd.merge(openweathermaporg_data_wind_speed, postcodescities, on="postcode")
 
-        mapped_precipitation_amount = pd.merge(dwd_data_precipitation_amount, postcodescities, on="postcode")
-        doublemap_precipitation_amount = pd.merge(mapped_precipitation_amount, openweathermaporg_data_air_pressure,                                        on=("city", "date"))
-        openweathermaporg_mapped_air_pressure = pd.merge(openweathermaporg_data_air_pressure, postcodescities, on="city")
+        #mapped_precipitation_amount = pd.merge(dwd_data_precipitation_amount, postcodescities, on="postcode")
+        doublemap_air_pressure = pd.merge(dwd_data_air_pressure, openweathermaporg_data_air_pressure,on=("postcode", "date"))
+        openweathermaporg_mapped_air_pressure = pd.merge(openweathermaporg_data_air_pressure, postcodescities, on="postcode")
 
         rms_min_temp, diff_min_temp = min_temp_func(doublemap_min_temp)
         rms_max_temp, diff_max_temp = max_temp_func(doublemap_max_temp)
         rms_wind, diff_wind = wind_func(doublemap_wind_speed)
-        rms_pressure, diff_pressure = air_pressure_func(doublemap_precipitation_amount)
+        rms_pressure, diff_pressure = air_pressure_func(doublemap_air_pressure)
 
         return rms_min_temp, diff_min_temp, rms_max_temp, diff_max_temp,rms_pressure, diff_pressure, rms_wind, diff_wind
 
@@ -131,31 +132,31 @@ def map(forecast_app):
     5.humidity_prob
     '''
     if forecast_app == 'wettercom':
-        openweathermaporg_data_max_temp = pd.read_csv("openweathermaporg_data_max_temp.csv")
-        openweathermaporg_data_min_temp = pd.read_csv("openweathermaporg_data_min_temp.csv")
-        openweathermaporg_data_precipitation_amount = pd.read_csv("openweathermaporg_data_precipitation_amount.csv")
-        openweathermaporg_data_sun_hours = pd.read_csv("openweathermaporg_data_sun_hours.csv")
+        wettercom_data_max_temp = pd.read_csv("wettercom_data_max_temp.csv")
+        wettercom_data_min_temp = pd.read_csv("wettercom_data_min_temp.csv")
+        wettercom_data_precipitation_amount = pd.read_csv("wettercom_data_precipitation_amount.csv")
+        wettercom_data_sun_hours = pd.read_csv("wettercom_data_sun_hours.csv")
 
         mapped_max_temp = pd.merge(dwd_data_max_temp, postcodescities, on="postcode")
-        doublemap_max_temp = pd.merge(mapped_max_temp, openweathermaporg_data_max_temp, on=("city", "date"))
-        openweathermaporg_mapped_max_temp = pd.merge(openweathermaporg_data_max_temp, postcodescities, on="city")
+        doublemap_max_temp = pd.merge(mapped_max_temp, wettercom_data_max_temp, on=("postcode", "date"))
+        openweathermaporg_mapped_max_temp = pd.merge(wettercom_data_max_temp, postcodescities, on="postcode")
 
         mapped_min_temp = pd.merge(dwd_data_min_temp, postcodescities, on="postcode")
-        doublemap_min_temp = pd.merge(mapped_min_temp, openweathermaporg_data_min_temp, on=("city", "date"))
-        openweathermaporg_mapped_min_temp = pd.merge(openweathermaporg_data_min_temp, postcodescities, on="city")
+        doublemap_min_temp = pd.merge(mapped_min_temp, wettercom_data_min_temp, on=("postcode", "date"))
+        openweathermaporg_mapped_min_temp = pd.merge(wettercom_data_min_temp, postcodescities, on="postcode")
 
 
         mapped_precipitation_amount = pd.merge(dwd_data_precipitation_amount, postcodescities, on="postcode")
-        doublemap_precipitation_amount = pd.merge(mapped_precipitation_amount, openweathermaporg_data_precipitation_amount,on=("city", "date"))
-        acc_mapped_precipitation_amount = pd.merge(openweathermaporg_data_precipitation_amount, postcodescities, on="city")
+        doublemap_precipitation_amount = pd.merge(mapped_precipitation_amount, wettercom_data_precipitation_amount,on=("postcode", "date"))
+        acc_mapped_precipitation_amount = pd.merge(wettercom_data_precipitation_amount, postcodescities, on="postcode")
 
         mapped_sun_hours = pd.merge(dwd_data_sun_hours, postcodescities, on="postcode")
-        doublemap_sun_hours = pd.merge(mapped_sun_hours, openweathermaporg_data_sun_hours, on=("city", "date"))
-        openweathermaporg_mapped_sun_hours = pd.merge(openweathermaporg_data_sun_hours, postcodescities, on="city")
+        doublemap_sun_hours = pd.merge(mapped_sun_hours, wettercom_data_sun_hours, on=("postcode", "date"))
+        openweathermaporg_mapped_sun_hours = pd.merge(wettercom_data_sun_hours, postcodescities, on="postcode")
 
         #mapped_humiditiy_prob = pd.merge(dwd_data_relative_himidity, postcodescities, on="postcode")
-        #doublemap_humidity_prob = pd.merge(mapped_humiditiy_prob, openweathermaporg_data_humidity_prob, on=("city", "date"))
-        #openweathermaporg_mapped_humiditiy_prob = pd.merge(openweathermaporg_data_humidity_prob, postcodescities, on="city")
+        #doublemap_humidity_prob = pd.merge(mapped_humiditiy_prob, openweathermaporg_data_humidity_prob, on=("postcode", "date"))
+        #openweathermaporg_mapped_humiditiy_prob = pd.merge(openweathermaporg_data_humidity_prob, postcodescities, on="postcode")
 
         rms_min_temp, diff_min_temp = min_temp_func(doublemap_min_temp)
         rms_max_temp, diff_max_temp = max_temp_func(doublemap_max_temp)
@@ -165,17 +166,19 @@ def map(forecast_app):
         return rms_min_temp, diff_min_temp, rms_max_temp, diff_max_temp, rms_precipitation, diff_precipitation, rms_sun_hours, diff_sun_hours
 
     if forecast_app == 'wetterdienstde':
-        acc_data_max_temp = pd.read_csv("acc_data_max_temp.csv")
-        acc_data_min_temp = pd.read_csv("acc_data_min_temp.csv")
+        wetterdienst_data_max_temp = pd.read_csv("wetterdienstde_data_max_temp.csv")
+        wetterdienst_data_min_temp = pd.read_csv("wetterdienstde_data_min_temp.csv")
 
 
         mapped_max_temp = pd.merge(dwd_data_max_temp, postcodescities, on="postcode")
-        doublemap_max_temp = pd.merge(mapped_max_temp, acc_data_max_temp, on=("city", "date"))
-        acc_mapped_max_temp = pd.merge(acc_data_max_temp, postcodescities, on="city")
+        doublemap_max_temp = pd.merge(mapped_max_temp, wetterdienst_data_max_temp, on=("postcode", "date"))
+        acc_mapped_max_temp = pd.merge(wetterdienst_data_max_temp, postcodescities, on="postcode")
+
+
 
         mapped_min_temp = pd.merge(dwd_data_min_temp, postcodescities, on="postcode")
-        doublemap_min_temp = pd.merge(mapped_min_temp, acc_data_min_temp, on=("city", "date"))
-        acc_mapped_min_temp = pd.merge(acc_data_min_temp, postcodescities, on="city")
+        doublemap_min_temp = pd.merge(mapped_min_temp, wetterdienst_data_min_temp, on=("postcode", "date"))
+        acc_mapped_min_temp = pd.merge(wetterdienst_data_min_temp, postcodescities, on="postcode")
 
         rms_min_temp, diff_min_temp = min_temp_func(doublemap_min_temp)
         rms_max_temp, diff_max_temp=  max_temp_func(doublemap_max_temp)
@@ -190,7 +193,7 @@ def max_temp_func(doublemap_max_temp):
     means_squared_error_max_temp = ((max_temp - max_temp_prediction) ** 2).mean()
     diff_max_temp = abs(max_temp - max_temp_prediction)
     print("mse_max_temp: " + str(means_squared_error_max_temp))
-    print("diff_max_temp: " + str(diff_max_temp))
+    #print("diff_max_temp: " + str(diff_max_temp))
 
     return diff_max_temp, means_squared_error_max_temp
 
@@ -200,7 +203,7 @@ def min_temp_func(doublemap_min_temp):
     means_squared_error_min_temp = ((min_temp - min_temp_prediction) ** 2).mean()
     diff_min_temp = abs(min_temp - min_temp_prediction)
     print("mse_min_temp: " + str(means_squared_error_min_temp))
-    print("diff_min_temp: " + str(diff_min_temp))
+    #print("diff_min_temp: " + str(diff_min_temp))
 
     return means_squared_error_min_temp, diff_min_temp
 
@@ -218,7 +221,7 @@ def wind_func(doublemap_wind_speed):
     means_squared_error_wind_speed = ((wind_speed - wind_speed_prediction) ** 2).mean()
     diff_wind_speed = abs(wind_speed - wind_speed_prediction)
     print("mse_wind_speed: " + str(means_squared_error_wind_speed))
-    print("diff_precipitation:" + str(wind_speed))
+    #print("diff_precipitation:" + str(diff_wind_speed))
 
     return means_squared_error_wind_speed, diff_wind_speed
 
@@ -229,7 +232,7 @@ def precipitation_func(doublemap_precipitation_amount):
     means_squared_error_precipitation_amount = ((precipitation_amount - precipitation_amount_prediction) ** 2).mean()
     diff_precipitation = abs(precipitation_amount - precipitation_amount_prediction)
     print("mse_precipitation_amount: " + str(means_squared_error_precipitation_amount))
-    print("diff_precipitation:" + str(diff_precipitation))
+    #print("diff_precipitation:" + str(diff_precipitation))
 
     return means_squared_error_precipitation_amount, diff_precipitation
 
@@ -240,21 +243,20 @@ def sun_hours(doublemap_sun_hours):
     means_squared_error_sun_hours = ((sun_hours - sun_hours_prediction) ** 2).mean()
     diff_sun_hours = abs(sun_hours - sun_hours_prediction)
     print("mse_sun_hours: " + str(means_squared_error_sun_hours))
-    print("diff_sun_hours:" + str(diff_sun_hours))
+    #print("diff_sun_hours:" + str(diff_sun_hours))
 
     return diff_sun_hours, means_squared_error_sun_hours
 
 def air_pressure_func(doublemap_air_pressure):
-    sun_hours = doublemap_air_pressure["air_pressure_x"]
-    sun_hours_prediction = doublemap_air_pressure["air_pressure_y"]
-    means_squared_error_sun_hours = ((sun_hours - sun_hours_prediction) ** 2).mean()
-    diff_sun_hours = abs(sun_hours - sun_hours_prediction)
-    print("mse_pressures: " + str(means_squared_error_sun_hours))
-    print("diff_pressure" + str(diff_sun_hours))
+    air_pressure = doublemap_air_pressure["air_pressure_x"]
+    air_pressure_prediction = doublemap_air_pressure["air_pressure_y"]
+    means_squared_error_air_pressur = ((air_pressure - air_pressure_prediction) ** 2).mean()
+    diff_air_pressur = abs(air_pressure - air_pressure_prediction)
+    print("mse_air_pressure: " + str(means_squared_error_air_pressur))
+    #print("diff_air_pressur:" + str(diff_air_pressur))
 
-    return diff_sun_hours, means_squared_error_sun_hours
+    return diff_air_pressur, means_squared_error_air_pressur
 
 
-a, b, c, d, e, f, g, h ,j,l ,k= map('accuweathercom')
+map('accuweathercom')
 
-#print('rms_min_temp:',a + 'diff_min_temp:',b +'rms_max_temp:',c + 'rmsd_pressure:',d+  'diff_pressure',e + 'rms_wind:',f+ 'diff_wind',g +'diff_max:',h)
