@@ -16,7 +16,7 @@ import FunctionLibraryExtended as fle
 def get_data(query, table='dwd'):
 	Base = declarative_base()
 	# TODO: ask user to enter username and password
-	engine = create_engine('mysql+pymysql://dwdtestuser:tuBnewD3_PW@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
+	engine = create_engine('mysql+pymysql://dwdtestuser:<password>@weather.service.tu-berlin.de/dwdtest?use_unicode=1&charset=utf8&ssl_cipher=AES128-SHA')
 	Base.metadata.create_all(engine)
 	Session = sqla.orm.sessionmaker()
 	Session.configure(bind=engine)
@@ -25,7 +25,6 @@ def get_data(query, table='dwd'):
 	metadata = MetaData(engine, reflect=True)
     # Get Table
 	table = metadata.tables[table]
-	# NOT CONTAINS(sun_hours, None)
 	result = engine.execute(query)
 	#result = engine.execute("SELECT station_name, measure_date, sun_hours FROM dwd WHERE station_name LIKE 'Berlin%%' AND NOT CONTAINS(sun_hours, None)")
 	return np.vstack(result)
@@ -74,36 +73,38 @@ def plot_temp_quantiles(city=None):
 	plt.scatter(plot_data_index_array, quantiles_75, s=1, color='yellow')
 	plt.scatter(plot_data_index_array, quantiles_95, s=1, color='green')
 
-	# TODO: vectorize, add slopes to plot
-	model_05 = LinearRegression().fit(plot_data_index_array, quantiles_05)
-	m_05 = model_05.coef_[0]
-	temp_pred_05 = model_05.predict(plot_data_index_array)
-	plt.plot(plot_data_index_array, temp_pred_05, color='black', linewidth=1)
-
-	model_25 = LinearRegression().fit(plot_data_index_array, quantiles_25)
-	m_25 = model_25.coef_[0]
-	temp_pred_25 = model_25.predict(plot_data_index_array)
-	plt.plot(plot_data_index_array, temp_pred_25, color='red', linewidth=1)
-
-	model_50 = LinearRegression().fit(plot_data_index_array, quantiles_50)
-	m_50 = model_50.coef_[0]
-	temp_pred_50 = model_50.predict(plot_data_index_array)
-	plt.plot(plot_data_index_array, temp_pred_50, color='blue', linewidth=1)
+	# TODO: vectorize
+	model_95 = LinearRegression().fit(plot_data_index_array, quantiles_95)
+	m_95 = model_95.coef_[0]
+	temp_pred_95 = model_95.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_95, color='green', linewidth=1, label=round(m_95, 5))
 
 	model_75 = LinearRegression().fit(plot_data_index_array, quantiles_75)
 	m_75 = model_75.coef_[0]
 	temp_pred_75 = model_75.predict(plot_data_index_array)
-	plt.plot(plot_data_index_array, temp_pred_75, color='yellow', linewidth=1)
+	plt.plot(plot_data_index_array, temp_pred_75, color='yellow', linewidth=1, label=round(m_75, 5))
 
-	model_95 = LinearRegression().fit(plot_data_index_array, quantiles_95)
-	m_95 = model_95.coef_[0]
-	temp_pred_95 = model_95.predict(plot_data_index_array)
-	plt.plot(plot_data_index_array, temp_pred_95, color='green', linewidth=1)
+	model_50 = LinearRegression().fit(plot_data_index_array, quantiles_50)
+	m_50 = model_50.coef_[0]
+	temp_pred_50 = model_50.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_50, color='blue', linewidth=1, label=round(m_50, 5))
+
+	model_25 = LinearRegression().fit(plot_data_index_array, quantiles_25)
+	m_25 = model_25.coef_[0]
+	temp_pred_25 = model_25.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_25, color='red', linewidth=1, label=round(m_25, 5))
+
+	model_05 = LinearRegression().fit(plot_data_index_array, quantiles_05)
+	m_05 = model_05.coef_[0]
+	temp_pred_05 = model_05.predict(plot_data_index_array)
+	plt.plot(plot_data_index_array, temp_pred_05, color='black', linewidth=1, label=round(m_05, 5))
 
 	plt.xticks()
 	plt.yticks()
 	plt.xlabel("Year")
 	plt.ylabel("Quantiles of annual average temperature/˚C")
+	# plt.legend()
+	plt.legend(bbox_to_anchor=(1, 1), loc=2, borderaxespad=0.)
 	plt.show()
 
 # plot annual average temperatures (for all years with a minimum of 100 weather stations)
@@ -120,7 +121,7 @@ def plot_temp():
 	model = LinearRegression().fit(plot_data_index_array, plot_data_arrary)
 	m = model.coef_[0]
 	b = model.intercept_
-	print("m: ", m, " b: ", b)
+
 	# compute regression line:
 	temp_pred = model.predict(plot_data_index_array)
 	# create plot:
@@ -146,7 +147,7 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom"):
 
 def main():
 	# plot average annual temperatures (where there are at least 100 weather stations)
-	plot_temp()
+	# plot_temp()
 
 	# plot quantiles of annual average temperatures
 	plot_temp_quantiles("Berlin")
