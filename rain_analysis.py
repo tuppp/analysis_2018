@@ -22,7 +22,9 @@ def bin_packing_error_rain(preds, ac, nbin=4.0):
         rain_day = np.sum(temp[x]==1)
         day = len(temp[x])
         npi = (((lower + upper) / 2 ) * day)
-        dev = ((npi - rain_day)**2) / npi
+        dev = 0
+        if npi != 0:
+            dev = ((npi - rain_day)**2) / npi
         if day==0:
             res.append(np.nan)
         else:
@@ -34,15 +36,15 @@ def bin_packing_error_rain(preds, ac, nbin=4.0):
     #print(res)
     #print(temp)
     #print("Ende bin packing error")
-    return np.array(res).sum()
+    return stat.chi2.cdf(x=np.array(res).sum(), df=9, loc=0, scale=1)
 
 
 preds2 = np.random.uniform(size=1000)
 ac2 =  np.random.binomial(1, preds2)
 
 #print(bin_packing_error_rain(preds2, ac2, 10))
-print(stat.chi2.cdf(x=bin_packing_error_rain(preds2, ac2, 10), df=9, loc=0, scale=1))
-print("Ende")
+#print(stat.chi2.cdf(x=bin_packing_error_rain(preds2, ac2, 10), df=9, loc=0, scale=1))
+#print("Ende")
 #print(create_bins())
 
 
