@@ -105,10 +105,13 @@ def map(forecast_app):
         doublemap_max_temp = pd.merge(dwd_data_max_temp, openweathermaporg_data_max_temp, on=("postcode", "date"))
         openweathermaporg_mapped_max_temp = pd.merge(openweathermaporg_data_max_temp, postcodescities, on="postcode")
 
+
+
         #mapped_min_temp = pd.merge(dwd_data_min_temp, postcodescities, on="postcode")
         doublemap_min_temp = pd.merge(dwd_data_min_temp, openweathermaporg_data_min_temp, on=("postcode", "date"))
         openweathermaporg_mapped_min_temp = pd.merge(openweathermaporg_data_min_temp, postcodescities, on="postcode")
 
+     
         #mapped_wind_speed = pd.merge(dwd_data_average_wind_speed, postcodescities, on="postcode")
         doublemap_wind_speed = pd.merge(dwd_data_average_wind_speed, openweathermaporg_data_wind_speed, on=("postcode", "date"))
         openweathermaporg_mapped_wind_speed = pd.merge(openweathermaporg_data_wind_speed, postcodescities, on="postcode")
@@ -259,4 +262,9 @@ def air_pressure_func(doublemap_air_pressure):
 
 
 map('accuweathercom')
-
+print('-----------')
+map('wettercom')
+print('-----------')
+map('wetterdienstde')
+print('-----------')
+map('openweathermaporg')
