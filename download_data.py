@@ -23,7 +23,7 @@ def download(file, diff, provider, data_type):
 
 print("start download")
 
-for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
+'''for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
     download("min_temp_" + x + "_diff1.csv", 1, x, "min_temp")
 
 for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
@@ -31,8 +31,22 @@ for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
 
 
 for x in ("accuweathercom", "openweathermaporg", "wettercom", "wetterdienstde"):
-    download("min_temp_" + x + "_diff3.csv", 3, x, "min_temp")
+    download("min_temp_" + x + "_diff5.csv",5 , x, "min_temp")
+ '''
 
+#download("min_temp_accuweathercom_diff5.csv",5 , "accuweathercom", "min_temp")
+
+
+#query = se.execute("SELECT measure_date, postcode, station_name, precipitation_amount FROM dwd WHERE measure_date > 20180520")
+#query = se.execute("SELECT measure_date_prediction, postcode, city, precipitation_type FROM wetterdienstde WHERE measure_date_prediction - measure_date = 1")
+#result = fl.getResult(query, se)
+#mapper = lambda t: 1 if t is not None and float(t)>0.1 else 0
+#mapped = np.apply_along_axis(mapper, axis=3, arr=result)
+#mapped = np.array([mapper(xi) for xi in result])
+#dataframe = pd.DataFrame(result,  columns=("date", "postcode", "city", "rain_amount"))
+#dataframe['rain_amount'] = dataframe["rain_amount"].apply(mapper)
+#dataframe.to_csv("dwd_rain.csv", columns=("date", "postcode", "city", "rain_amount"), header=True)
+#dataframe.to_csv("wetterdienstde_rain_chance.csv", columns=("date", "postcode", "city", "rain_amount"), header=True)
 
 
 
