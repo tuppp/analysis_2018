@@ -2,8 +2,8 @@ import pandas as pd
 import numpy as np
 import sys
 
-sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
-#sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
+#sys.path.append("C:/Users/Lukas Tilmann/mkp_database")
+sys.path.append('/Users/kyrak/PycharmProjects/MKP/')
 
 
 import FunctionLibraryExtended as fl
@@ -20,42 +20,7 @@ wd, se_wd  = fl.getConnectionWetterdienstde()
 
 
 
-#data = fl.getResult(fl.getPostcode(26197,dwd,se),se)
 
-#data = fl.getResult(fl.getTempAvg(Dwd,se),se)
-
-#query_2 = se_acc.query(acc).filter(acc.c.postcode==10627)
-
-#query = se.query(dwd).filter(dwd.c.postcode==10627)
-
-#query = se.query(dwd).select_from(dwd.c.max_temp)
-
-#query2 = se.query(acc, dwd).filter(dwd.c.postcode==acc.c.postcode)
-
-#query2 = se.query(op, dwd).filter(dwd.c.station_name==op.c.city).filter(dwd.c.measure_date == op.c.measure_date)
-
-#query4 = se.query(op, dwd).filter(dwd.c.postcode==op.c.postcode)
-
-print("query: ")
-#query5 = se.query(op.c.postcode).filter(dwd.c.measure_date > 20180601).filter(dwd.c.postcode==op.c.postcode)
-    #.filter(dwd.c.measure_date == op.c.measure_date_prediction)
-    #.filter(dwd.c.measure_date == op.c.measure_date_prediction)
-
-#query6 = se.execute("SELECT measure_date FROM dwd AS d WHERE d.measure_date > 20180601 ")
-                    #" AND (d.measure_date == o.measure_date_prediction)")
-
-
-#query7 = se.execute("SELECT dwd_recent.max_temp FROM ((Select * FROM openweathermaporg WHERE measure_date_prediction > 20180601) AS op) JOIN (SELECT * FROM dwd WHERE measure_date > 20180601) AS dwd_recent")
-
-#query8 = se.execute("SELECT * FROM ((SELECT * FROM openweathermaporg WHERE measure_date_prediction == 20180604) AS op) JOIN ((SELECT * FROM dwd WHERE measure_date = 20180604) AS dwd_recent)")
-
-#query9 = se.execute("SELECT dwd.max_temp, openweathermaporg.max_temp WHERE dwd.postcode == openweathermaporg.postcode AND dwd.measure_date == 20180604 AND openweathermaporg.measure_date_prediction == 20180604")
-#query1 = se.execute("SELECT * FROM dwd WHERE dwd.measure_date = 20180604 AND dwd.max_temp IS NOT NULL AND (postcode = 15837 OR postcode= 55250 OR postcode= 60323 OR postcode= 26197 )")
-#predictiondatesquery = se.execute("SELECT DISTINCT measure_date_prediction FROM openweathermaporg WHERE measure_date_prediction > 20180604")
-#postcodequery = se.execute("SELECT DISTINCT dwd.postcode FROM dwd WHERE EXISTS (SELECT DISTINCT postcode FROM openweathermaporg) ")
-
-#one_day_pred_query = se.execute("SELECT op.max_temp, op.postcode, op.measure_date_prediction, d.postcode, d.measure_date, d.max_temp FROM openweathermaporg AS op, dwd AS d WHERE op.measure_date_prediction - op.measure_date = 1 AND(d.postcode = 15837 OR d.postcode= 52385 OR d.postcode= 60323 OR d.postcode= 26197 ) AND d.postcode = op.postcode  ")
-#dwd_dates_query = se.execute("SELECT measure_date FROM dwd WHERE EXISTS (SELECT DISTINCT measure_date_prediction FROM openweathermaporg)")
 
 '''
 Data available - copied from Slack:
@@ -106,7 +71,7 @@ dwd_data_query_average_wind_speed = se.execute("SELECT measure_date, average_win
 dwd_data_query_precipitation_amount = se.execute("SELECT measure_date, precipitation_amount, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_sun_hours = se.execute("SELECT measure_date, sun_hours, postcode FROM dwd WHERE measure_date > 20180522")
 dwd_data_query_relative_himidity = se.execute("SELECT measure_date, relative_himidity, postcode FROM dwd WHERE measure_date > 20180522")
-dwd_data_query_air_pressure = se.execute("SELECT measure_date, air_pressure, postcode FROM dwd WHERE measure_date > 20180522")
+dwd_data_query_air_pressure = se.execute("SELECT measure_date, air_pressure, postcode FROM dwd WHERE measure_date > 20180522 and air_pressure")
 
 
 
@@ -141,10 +106,10 @@ accuweather_data_query_humidity_prob = se.execute("SELECT measure_date_predictio
 4.wind_speed
 '''
 
-omwo_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-omwo_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-omwo_data_query_air_pressure_ground = se.execute("SELECT measure_date_prediction, air_pressure_ground, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-omwo_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_speed, city FROM openweathermaporg WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_max_temp = se.execute("SELECT measure_date_prediction, min_temp as max_temp, postcode FROM openweathermaporg WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_min_temp = se.execute("SELECT measure_date_prediction, max_temp as  min_temp, postcode FROM openweathermaporg WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_air_pressure_ground = se.execute("SELECT measure_date_prediction, air_pressure_ground, postcode FROM openweathermaporg WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
+omwo_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_speed, postcode FROM openweathermaporg WHERE measure_date_prediction > 20180522   and postcode <> -1 AND measure_date_prediction - measure_date = " + str(diff))
 
 
 '''Queries: wettercom 
@@ -155,19 +120,19 @@ omwo_data_query_wind_speed = se.execute("SELECT measure_date_prediction, wind_sp
 6.humidity_prob
 '''
 
-wettercom_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-wettercom_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-wettercom_data_query_sun_hours = se.execute("SELECT measure_date_prediction, sun_hours, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-wettercom_data_precipitation_amount = se.execute("SELECT measure_date_prediction, precipitation_amount, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-wettercom_data_humidity_prob = se.execute("SELECT measure_date_prediction, humidity_prob, city FROM wettercom WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_query_max_temp = se.execute("SELECT measure_date_prediction, min_temp as max_temp, postcode FROM wettercom WHERE measure_date_prediction > 20180522 and postcode <> -1 AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_query_min_temp = se.execute("SELECT measure_date_prediction, max_temp as min_temp,postcode FROM wettercom WHERE measure_date_prediction > 20180522  and postcode <> -1 AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_query_sun_hours = se.execute("SELECT measure_date_prediction, sun_hours, postcode FROM wettercom WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_precipitation_amount = se.execute("SELECT measure_date_prediction, precipitation_amount, postcode FROM wettercom WHERE measure_date_prediction > 20180522   and postcode <> -1 AND measure_date_prediction - measure_date = " + str(diff))
+wettercom_data_humidity_prob = se.execute("SELECT measure_date_prediction, humidity_prob, postcode FROM wettercom WHERE measure_date_prediction > 20180522   and postcode <> -1 AND measure_date_prediction - measure_date = " + str(diff))
 
 '''
 Queries: wetterdienstde
 1.max_temp
 2.min_temp
 '''
-wetterdienstde_data_query_max_temp = se.execute("SELECT measure_date_prediction, max_temp, city FROM wetterdienstde   WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
-wetterdienstde_data_query_min_temp = se.execute("SELECT measure_date_prediction, min_temp, city FROM wetterdienstde   WHERE measure_date_prediction > 20180522  AND measure_date_prediction - measure_date = " + str(diff))
+wetterdienstde_data_query_max_temp = se.execute("SELECT measure_date_prediction, min_temp as max_temp , postcode FROM wetterdienstde   WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
+wetterdienstde_data_query_min_temp = se.execute("SELECT measure_date_prediction, max_temp as min_temp , postcode FROM wetterdienstde   WHERE measure_date_prediction > 20180522  and postcode <> -1  AND measure_date_prediction - measure_date = " + str(diff))
 
 
 
@@ -195,87 +160,66 @@ DWD Query Results
 '''
 1.max_temp
 '''
-#print("start download")
 dwd_data_max_temp = fl.getResult(dwd_data_query_max_temp, se)
-#print("download done")
-#print(dwd_data_max_temp)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_max_temp = pd.DataFrame(dwd_data_max_temp, columns=("date", "max_temp", "postcode"))
-#print(dwd_df_max_temp)
 dwd_df_max_temp.to_csv("dwd_data_max_temp.csv", columns=("date", "max_temp", "postcode"), header=True)
 
 '''
 2.min_temp
 '''
-#print("start download")
+
 dwd_data_min_temp = fl.getResult(dwd_data_query_min_temp, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_min_temp = pd.DataFrame(dwd_data_min_temp, columns=("date", "min_temp", "postcode"))
-#print(dwd_df)
 dwd_df_min_temp.to_csv("dwd_data_min_temp.csv", columns=("date", "min_temp", "postcode"), header=True)
 
 
 '''
 3.coverage_amount
 '''
-#print("start download")
+
 dwd_data_coverage_amount = fl.getResult(dwd_data_query_coverage_amount, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_coverage_amount = pd.DataFrame(dwd_data_coverage_amount, columns=("date", "coverage_amount", "postcode"))
-#print(dwd_df)
 dwd_df_coverage_amount.to_csv("dwd_data_coverage_amount.csv", columns=("date", "coverage_amount", "postcode"), header=True)
 
 '''
 4.average_wind_speed
 '''
-#print("start download")
+
 dwd_data_average_wind_speed = fl.getResult(dwd_data_query_average_wind_speed, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_average_wind_speed = pd.DataFrame(dwd_data_average_wind_speed, columns=("date", "average_wind_speed", "postcode"))
-#print(dwd_df)
 dwd_df_average_wind_speed.to_csv("dwd_data_average_wind_speed.csv", columns=("date", "average_wind_speed", "postcode"), header=True)
 
 '''
 5.precipitation_amount
 '''
-#print("start download")
+
 dwd_data_precipitation_amount = fl.getResult(dwd_data_query_precipitation_amount, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_precipitation_amount = pd.DataFrame(dwd_data_precipitation_amount, columns=("date", "precipitation_amount", "postcode"))
-#print(dwd_df)
 dwd_df_precipitation_amount.to_csv("dwd_data_precipitation_amount.csv", columns=("date", "precipitation_amount", "postcode"), header=True)
 
 '''
 6.sun_hours
 '''
-#print("start download")
+
 dwd_data_sun_hours = fl.getResult(dwd_data_query_sun_hours, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
 dwd_df_sun_hours = pd.DataFrame(dwd_data_sun_hours, columns=("date", "sun_hours", "postcode"))
-#print(dwd_df)
 dwd_df_sun_hours.to_csv("dwd_data_sun_hours.csv", columns=("date", "sun_hours", "postcode"), header=True)
 
 '''
 7.relative_himidity
 '''
-#print("start download")
+
 dwd_data_relative_himidity = fl.getResult(dwd_data_query_relative_himidity, se)
-#print("download done")
-#print(dwd_data)
-#pd.DataFrame(dwd_data).to_csv("C:/Users/Lukas Tilmann/analysis_2018/dwd_data.csv")
-dwd_df_relative_himidity = pd.DataFrame(dwd_data_relative_himidity, columns=("date", "arelative_himidity", "postcode"))
-#print(dwd_df)
+dwd_df_relative_himidity = pd.DataFrame(dwd_data_relative_himidity, columns=("date", "relative_himidity", "postcode"))
 dwd_df_relative_himidity.to_csv("dwd_data_relative_himidity.csv", columns=("date", "relative_himidity", "postcode"), header=True)
+
+'''air_pressure
+'''
+
+dwd_data_relative_air_pressure = fl.getResult(dwd_data_query_air_pressure, se)
+dwd_df_relative_air_pressure = pd.DataFrame(dwd_data_relative_air_pressure, columns=("date", "air_pressure", "postcode"))
+dwd_df_relative_air_pressure.to_csv("dwd_data_air_pressure.csv", columns=("date", "air_pressure", "postcode"), header=True)
+
 
 '''
 Accuweathercom Query Results
@@ -352,66 +296,84 @@ acc_df_humidity_prob.to_csv("acc_data_humidity_prob.csv", columns=("date", "humi
 2.min_temp
 3.air_pressure_ground
 4.wind_speed
-5.precipitation_amount
-6.humidity_prob
-
+5.humidity_prob
+'''
 owmo_data_max_temp = fl.getResult(omwo_data_query_max_temp, se)
 owmo_df_max_temp = pd.DataFrame(owmo_data_max_temp)
-owmo_df_max_temp.columns = ("date", "max_temp", "city")
-owmo_df_max_temp.to_csv("owmo_data_max_temp.csv", columns=("date", "max_temp", "city"))
+owmo_df_max_temp.columns = ("date", "max_temp", "postcode")
+owmo_df_max_temp.to_csv("owmo_data_max_temp.csv", columns=("date", "max_temp", "postcode"))
 
 
 
 owmo_data_min_temp = fl.getResult(omwo_data_query_min_temp, se)
 owmo_df_min_temp = pd.DataFrame(owmo_data_min_temp)
-owmo_df_min_temp.columns = ("date", "min_temp", "city")
-owmo_df_min_temp.to_csv("owmo_data_min_temp.csv", columns=("date", "min_temp", "city"))
+owmo_df_min_temp.columns = ("date", "min_temp", "postcode")
+owmo_df_min_temp.to_csv("owmo_data_min_temp.csv", columns=("date", "min_temp", "postcode"))
 
 
 owmo_data_air_pressure_ground = fl.getResult(omwo_data_query_air_pressure_ground, se)
 owmo_df_air_pressure_ground = pd.DataFrame(owmo_data_air_pressure_ground)
-owmo_df_air_pressure_ground.columns = ("date", "air_pressure_ground", "city")
-owmo_df_air_pressure_ground.to_csv("owmo_data_air_pressure_ground.csv", columns=("date", "air_pressure_ground", "city"))
+owmo_df_air_pressure_ground.columns = ("date", "air_pressure", "postcode")
+owmo_df_air_pressure_ground.to_csv("owmo_data_air_pressure_ground.csv", columns=("date", "air_pressure", "postcode"))
 
 
-owmo_data_air_pressure_ground = fl.getResult(omwo_data_query_air_pressure_ground, se)
-owmo_df_air_pressure_ground = pd.DataFrame(owmo_data_air_pressure_ground)
-owmo_df_air_pressure_ground.columns = ("date", "air_pressure_ground", "city")
-owmo_df_air_pressure_ground.to_csv("owmo_data_air_pressure_ground.csv", columns=("date", "air_pressure_ground", "city"))
-#postcodescities = pd.read_csv("C:/Users/Lukas Tilmann/analysis_2018/city_to_zipcode.dat")
+owmo_data_wind_speed = fl.getResult(omwo_data_query_wind_speed, se)
+owmo_df_air_wind_speed = pd.DataFrame(owmo_data_wind_speed)
+owmo_df_air_wind_speed.columns = ("date", "wind_speed", "postcode")
+owmo_df_air_wind_speed.to_csv("owmo_data_wind_speed.csv", columns=("date", "wind_speed", "postcode"))
+
+
+
+
+'''Queries: wettercom 
+1.max_temp
+2.min_temp
+4.sun_hours
+5.precipitation_amount
+6.humidity_prob
 '''
-#for x in dwd_data:
-   # print(x)
 
-#for x in accuweather_data:
-   # print(x)
+wettercom_data_max_temp = fl.getResult(wettercom_data_query_max_temp, se)
+wettercom_df_max_temp = pd.DataFrame(wettercom_data_max_temp)
+wettercom_df_max_temp.columns = ("date", "max_temp", "postcode")
+wettercom_df_max_temp.to_csv("wettercom_data_max_temp.csv", columns=("date", "max_temp", "postcode"))
 
-#print(postcodescities)
 
-#print(fl.getResult(postcodequery, se))
 
-'''26197, 72458, 94501, 49594, 85250, 15837, 2627, 52385, 38116, 60323
-15837, 60323, 26197
+wettercom_data_min_temp = fl.getResult(wettercom_data_query_min_temp, se)
+wettercom_df_min_temp = pd.DataFrame(wettercom_data_min_temp)
+wettercom_df_min_temp.columns = ("date", "min_temp", "postcode")
+wettercom_df_min_temp.to_csv("wettercom_data_min_temp.csv", columns=("date", "min_temp", "postcode"))
+
+
+wettercom_data_sun_hours = fl.getResult(wettercom_data_query_sun_hours, se)
+wettercom_df_sun_hours = pd.DataFrame(wettercom_data_sun_hours)
+wettercom_df_sun_hours.columns = ("date", "sun_hours", "postcode")
+wettercom_df_sun_hours.to_csv("wettercom_data_sun_hours.csv", columns=("date", "sun_hours", "postcode"))
+
+
+wettercom_data_precipitation_amount = fl.getResult(wettercom_data_precipitation_amount, se)
+wettercom_df_precipitation_amount = pd.DataFrame(wettercom_data_precipitation_amount)
+wettercom_df_precipitation_amount.columns = ("date", "precipitation_amount", "postcode")
+wettercom_df_precipitation_amount.to_csv("wettercom_data_precipitation_amount.csv", columns=("date", "precipitation_amount", "postcode"))
+
 '''
-#query6 = se.query(op.c.measure_date_prediction, dwd.measure_date).filter(query)
+Queries: wetterdienstde
+1.max_temp
+2.min_temp
+'''
 
-#query3 = se.query(acc, dwd).filter(dwd.c.postcode == acc.c.postcode).filter(dwd.c.measure_date == acc.c.measure_date)
+wetterdienstde_data_max_temp = fl.getResult(wetterdienstde_data_query_max_temp, se)
+wetterdienstde_df_max_temp = pd.DataFrame(wetterdienstde_data_max_temp)
 
-#query3 = se.query(dwd).filter(dwd.c.postcode!=0)
+wetterdienstde_df_max_temp.columns = ("date", "max_temp", "postcode")
+wetterdienstde_df_max_temp.to_csv("wetterdienstde_data_max_temp.csv", columns=("date", "max_temp", "postcode"))
 
 
 
-#print(query5)
-
-#print(fl.getResult(query2, se))
-
-#print(fl.getResult(query5, se))
-
-#print(fl.getResult(query2, se))
-#print(fl.getResult(query, se))
-
-#print(fl.getResult(query_2, se_acc))
-
-#print(query)
+wetterdienstde_data_min_temp = fl.getResult(wetterdienstde_data_query_min_temp, se)
+wetterdienstde_df_min_temp = pd.DataFrame(wetterdienstde_data_min_temp)
+wetterdienstde_df_min_temp.columns = ("date", "min_temp", "postcode")
+wetterdienstde_df_min_temp.to_csv("wetterdienstde_data_min_temp.csv", columns=("date", "min_temp", "postcode"))
 
 
