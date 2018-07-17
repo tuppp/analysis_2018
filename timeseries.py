@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import calmap
 
 
-
 import sqlalchemy as sqla
 from sqlalchemy import *
 from sqlalchemy.ext.declarative import declarative_base
@@ -154,8 +153,6 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom", city="B
 	# every 5th entry, starting at 1
 	predict_1_day = forecast_data[1::5]
 	predict_1_day = predict_1_day[0:(dwd_data.shape[0]),2]
-	# print(dwd_data[:,1])
-	print(predict_1_day.shape)
 
 	# every 5th entry, starting at 2
 	predict_2_day = forecast_data[2::5]
@@ -168,19 +165,6 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom", city="B
 	# every 5th entry, starting at 4
 	predict_4_day = forecast_data[4::5]
 	predict_4_day = predict_4_day[0:(dwd_data.shape[0]),2]
-
-	# print(predict_1_day.shape[0]-1)
-	# print(dwd_data.shape[0]-1)
-
-	# print(dwd_data[:,1].reshape(-1,1))
-	# print(dwd_data[:,1].reshape(-1,1).shape)
-
-	# deviation_1 = abs(predict_1_day[:, 2] - dwd_data[:predict_1_day.shape[0]-1,1])
-
-	# deviation_1 = abs(predict_1_day - dwd_data[:,1])
-	# deviation_2 = abs(predict_2_day - dwd_data[:,1])
-	# deviation_3 = abs(predict_3_day - dwd_data[:,1])
-	# deviation_4 = abs(predict_4_day - dwd_data[:,1])
 
 	deviation_1 = dwd_data[:,1] - predict_1_day
 	deviation_2 = dwd_data[:,1] - predict_2_day
@@ -209,13 +193,9 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom", city="B
 
 	# groupby weekday
 	weekday_deviation_1 = deviation_1_plot_data.groupby(deviation_1_plot_data.index.weekday).mean()
-	print(weekday_deviation_1)
 	weekday_deviation_2 = deviation_2_plot_data.groupby(deviation_2_plot_data.index.weekday).mean()
-	print(weekday_deviation_2)
 	weekday_deviation_3 = deviation_3_plot_data.groupby(deviation_3_plot_data.index.weekday).mean()
-	print(weekday_deviation_3)
 	weekday_deviation_4 = deviation_4_plot_data.groupby(deviation_4_plot_data.index.weekday).mean()
-	print(weekday_deviation_4)
 
 	# concat = pd.concat([weekday_deviation_1, weekday_deviation_2, weekday_deviation_3, weekday_deviation_4])
 	# print(concat)
@@ -230,16 +210,8 @@ def forecast_deviation(feature=None, forecast_provider="accuweathercom", city="B
 	plt.legend(["1-day", "2-day", "3-day", "4-day"]);
 	plt.show()
 
-	# plot_timeseries(weekday_deviation_1, "1-day deviation by weekday")
-	# plot_timeseries(weekday_deviation_2, "2-day deviation by weekday")
-	# plot_timeseries(weekday_deviation_3, "3-day deviation by weekday")
-	# plot_timeseries(weekday_deviation_4, "4-day deviation by weekday")
-
 	# create time series from date_range and AVG(sun_hours) (forecast)
 	# dwd_plot_data = pd.Series(dwd_data[:,1], index=data_range)
-
-	# TODO pd.date_range()
-	# TODO pd.Series()
 
 	return forecast_data, dwd_data
 
